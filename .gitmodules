@@ -1,0 +1,6 @@
+[submodule "libs/bibtool_wrapper"]
+	path = libs/bibtool_wrapper
+	url = git@github.com:altwright/bibtool-wrapper.git
+[submodule "libs/altcore"]
+	path = libs/altcore
+	url = git@github.com:altwright/altcore.git
