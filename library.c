@@ -67,12 +67,14 @@ char *article_to_html(const char *filepath) {
         file_buffer.data[file_size] = '\0';
     }
 
+    strings file_lines = str_split(&tmp, &file_buffer, "\n");
+
     MetadataMap metadata_map = {HASHMAP_TYPE_STR_KEY};
     string default_str = {};
     HASHMAP_MAKE(&metadata_map, &default_str);
 
     DEFER(HASHMAP_FREE(&metadata_map)) {
-        bool metadata_found = metadata_get(&tmp, &file_buffer, &metadata_map);
+        bool metadata_found = metadata_get(&tmp, &file_lines, &metadata_map);
     }
 
     string html = str_make(&tmp, "");
