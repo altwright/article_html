@@ -31,6 +31,11 @@ bool metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map)
 
                     str_view_strip(&key);
                     str_view_strip(&val);
+
+                    string key_str = str_view_make(arena, &key);
+                    string val_str = str_view_make(arena, &val);
+
+                    HASHMAP_PUT(out_map, &key_str.data, &val_str);
                 }
             } else if (meta_delim_count >= 2) {
                 found = true;

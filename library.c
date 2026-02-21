@@ -75,6 +75,10 @@ char *article_to_html(const char *filepath) {
 
     DEFER(HASHMAP_FREE(&metadata_map)) {
         bool metadata_found = metadata_get(&tmp, &file_lines, &metadata_map);
+
+        HASHMAP_FOR(pair, &metadata_map) {
+            printf("%s = %s\n", pair->key, pair->value.data);
+        }
     }
 
     string html = str_make(&tmp, "");
