@@ -2,5 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/altcore" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/bibtool_wrapper" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/libs/bibtool_wrapper/libs/altcore" vcs="Git" />
   </component>
 </project>

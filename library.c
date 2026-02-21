@@ -1,10 +1,15 @@
 #include "library.h"
 
+#include <assert.h>
+#include <stdio.h>
 #include <altcore/types.h>
 #include <altcore/malloc.h>
 #include <altcore/arenas.h>
 #include <altcore/strings.h>
+#include <altcore/hashmap.h>
 
+#include "metadata.h"
+#include "altcore/defer.h"
 
 static Arena g_arena = {};
 static bool g_initialized = false;
@@ -36,9 +41,41 @@ char *article_to_html(const char *filepath) {
 
     Arena tmp = g_arena;
 
-    string html = str_make(&tmp, "");
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp) {
+        return nullptr;
+    }
 
     char *html_malloc = nullptr;
+
+    string file_buffer = {&tmp};
+
+    int err = 0;
+    DEFER(err = fclose(fp), assert(!err), fp = nullptr) {
+        err = fseek(fp, 0, SEEK_END);
+        assert(!err);
+
+        long file_size = ftell(fp);
+        rewind(fp);
+
+        file_buffer.len = file_size + 1;
+        ARRAY_MAKE(&file_buffer);
+
+        size_t read_size = fread(file_buffer.data, sizeof(char), file_size, fp);
+        assert(read_size == file_size);
+
+        file_buffer.data[file_size] = '\0';
+    }
+
+    MetadataMap metadata_map = {HASHMAP_TYPE_STR_KEY};
+    string default_str = {};
+    HASHMAP_MAKE(&metadata_map, &default_str);
+
+    bool metadata_found = metadata_get(&file_buffer, &metadata_map);
+
+    HASHMAP_FREE(&metadata_map);
+
+    string html = str_make(&tmp, "");
 
     return html_malloc;
 }
