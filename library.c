@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <altcore/types.h>
-#include <altcore/malloc.h>
+#include <altcore/memory.h>
 #include <altcore/arenas.h>
 #include <altcore/strings.h>
 #include <altcore/hashmap.h>
@@ -71,9 +71,9 @@ char *article_to_html(const char *filepath) {
     string default_str = {};
     HASHMAP_MAKE(&metadata_map, &default_str);
 
-    bool metadata_found = metadata_get(&file_buffer, &metadata_map);
-
-    HASHMAP_FREE(&metadata_map);
+    DEFER(HASHMAP_FREE(&metadata_map)) {
+        bool metadata_found = metadata_get(&tmp, &file_buffer, &metadata_map);
+    }
 
     string html = str_make(&tmp, "");
 

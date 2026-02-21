@@ -12,6 +12,6 @@ typedef struct METADATA_MAP_T {
     HASHMAP_FIELDS(const char*, string)
 } MetadataMap;
 
-bool metadata_get(const string* file_buffer, MetadataMap* out_map);
+bool metadata_get(Arena *arena, const string *file_buffer, MetadataMap *out_map);
 
 #endif //ARTICLE_HTML_METADATA_H
