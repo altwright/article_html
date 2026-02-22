@@ -12,6 +12,10 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(NONE) \
     X(HEADING) \
     X(PARAGRAPH) \
+    X(REGULAR_TEXT) \
+    X(ITALIC_TEXT) \
+    X(BOLD_TEXT) \
+    X(UNDERLINED_TEXT) \
     X(BLOCKQUOTE) \
     X(UNORDERED_LIST) \
     X(ORDERED_LIST) \
@@ -34,6 +38,16 @@ typedef struct HEADING_TOKEN_DATA_T {
 
 typedef struct PARAGRAPH_TOKEN_DATA_T {
 } ParagraphTokenData;
+
+typedef struct TEXT_TOKEN_DATA_T {
+    i64 line_idx;
+    i64 c_start_idx;
+    string text;
+} TextTokenData;
+
+typedef TextTokenData RegularTextTokenData;
+typedef TextTokenData ItalicTextTokenData;
+typedef TextTokenData BoldTextTokenData;
 
 typedef struct LABEL_TOKEN_DATA_T {
     string name;
@@ -64,6 +78,9 @@ typedef struct ARTICLE_TOKEN_T {
     union {
         HeadingTokenData heading;
         ParagraphTokenData paragraph;
+        RegularTextTokenData reg_text;
+        ItalicTextTokenData it_text;
+        BoldTextTokenData bold_text;
         LabelTokenData label;
     } data;
 } ArticleToken;
@@ -187,7 +204,7 @@ void body_to_html(
     i64 current_open_tk_idx = -1;
 
     for (i64 line_idx = body_start_line_idx; line_idx < file_lines->len; line_idx++) {
-        string *line = &file_lines->data[line_idx];
+        const string *line = &file_lines->data[line_idx];
 
         string_view line_view = {line->data, line->len};
 
@@ -198,10 +215,10 @@ void body_to_html(
                 switch (line_view.data[0]) {
                     case '#': {
                         // Heading
-                        ArticleTokenType tk_type = ARTICLE_TOKEN_TYPE_HEADING;
+                        ArticleTokenType heading_tk_type = ARTICLE_TOKEN_TYPE_HEADING;
                         ArticleToken heading_open_tk = {
                             TOKEN_PAREN_OPEN,
-                            tk_type,
+                            heading_tk_type,
                         };
 
                         i64 text_start_idx;
@@ -229,7 +246,8 @@ void body_to_html(
                                     label_range.end_c_idx - label_range.start_c_idx
                                 };
 
-                                label_present = label_get_metablock(arena, &existing_labels, &metablock_view, &label_tk_data);
+                                label_present = label_get_metablock(arena, &existing_labels, &metablock_view,
+                                                                    &label_tk_data);
                                 if (label_present) {
                                     text_start_idx = (i32) (label_range.end_c_idx + strlen(kMetablockEndDelimiter));
                                 }
@@ -260,7 +278,7 @@ void body_to_html(
 
                         ArticleToken heading_close_tk = {
                             TOKEN_PAREN_CLOSE,
-                            tk_type,
+                            heading_tk_type,
                         };
 
                         ARRAY_PUSH(&tks, &heading_close_tk);
@@ -271,9 +289,215 @@ void body_to_html(
                         // Blockquote
                         break;
                     }
-                    default:
+                    case '{': {
+                        // Metablock
                         break;
+                    }
+                    default: // Paragraph
+                    {
+                        ArticleToken p_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_PARAGRAPH
+                        };
+
+                        current_open_tk_idx = tks.len;
+
+                        ARRAY_PUSH(&tks, &p_open_tk);
+
+                        line_idx--;
+
+                        break;
+                    }
                 }
+            } else {
+                current_open_tk_idx = -1;
+            }
+        } else {
+            ArticleToken *current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
+
+            if (line->len > 0) {
+                switch (current_open_tk->type) {
+                    case ARTICLE_TOKEN_TYPE_PARAGRAPH: {
+                        char first_c = line->data[0];
+
+                        TextTokenData text_tk_data = {
+                            .line_idx = line_idx,
+                            .c_start_idx = 0
+                        };
+                        text_tk_data.text = str_make(arena, "");
+
+                        bool is_special = false;
+                        switch (first_c) {
+                            case '*': {
+                                is_special = true;
+                                char second_c = '\0';
+                                if (line->len > 1) {
+                                    second_c = line->data[1];
+                                }
+
+                                current_open_tk_idx = tks.len;
+
+                                if (second_c == '*') {
+                                    ArticleToken bold_open_tk = {
+                                        TOKEN_PAREN_OPEN,
+                                        ARTICLE_TOKEN_TYPE_BOLD_TEXT
+                                    };
+
+                                    bold_open_tk.data.bold_text = text_tk_data;
+
+                                    ARRAY_PUSH(&tks, &bold_open_tk);
+                                } else {
+                                    ArticleToken it_open_tk = {
+                                        TOKEN_PAREN_OPEN,
+                                        ARTICLE_TOKEN_TYPE_ITALIC_TEXT
+                                    };
+
+                                    it_open_tk.data.it_text = text_tk_data;
+
+                                    ARRAY_PUSH(&tks, &it_open_tk);
+                                }
+
+                                break;
+                            }
+                            case '{': {
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+
+                        if (!is_special) {
+                            ArticleToken reg_open_tk = {
+                                TOKEN_PAREN_OPEN,
+                                ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                            };
+
+                            reg_open_tk.data.reg_text = text_tk_data;
+
+                            current_open_tk_idx = tks.len;
+
+                            ARRAY_PUSH(&tks, &reg_open_tk);
+                        }
+
+                        line_idx--;
+
+                        break;
+                    }
+                    case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
+                        i64 start_char_idx = current_open_tk->data.reg_text.line_idx == line_idx
+                                                 ? current_open_tk->data.reg_text.c_start_idx
+                                                 : 0;
+
+                        for (i64 c_idx = start_char_idx; c_idx < line->len; c_idx++) {
+                            char c = line->data[c_idx];
+
+                            bool new_tk = false;
+
+                            ArticleToken open_tk = {
+                                TOKEN_PAREN_OPEN,
+                            };
+
+                            switch (c) {
+                                case '*': {
+                                    bool is_italic = true;
+                                    if (c_idx < line->len - 1 && line->data[c_idx + 1] == '*') {
+                                        is_italic = false;
+                                    }
+
+                                    TextTokenData text_tk_data = {
+                                        .line_idx = line_idx,
+                                        .c_start_idx = is_italic ? c_idx + 1 : c_idx + 2,
+                                        .text = str_make(arena, "")
+                                    };
+
+                                    if (is_italic) {
+                                        open_tk.type = ARTICLE_TOKEN_TYPE_ITALIC_TEXT;
+                                        open_tk.data.it_text = text_tk_data;
+                                    } else {
+                                        open_tk.type = ARTICLE_TOKEN_TYPE_BOLD_TEXT;
+                                        open_tk.data.bold_text = text_tk_data;
+                                    }
+
+                                    new_tk = true;
+
+                                    break;
+                                }
+                                case '{': {
+                                    break;
+                                }
+                                default: {
+                                    str_append(&current_open_tk->data.reg_text.text, "%c", c);
+                                    break;
+                                }
+                            }
+
+                            if (new_tk) {
+                                ArticleToken reg_close_tk = {
+                                    TOKEN_PAREN_CLOSE,
+                                    ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                                };
+
+                                ARRAY_PUSH(&tks, &reg_close_tk);
+
+                                current_open_tk_idx = tks.len;
+                                ARRAY_PUSH(&tks, &open_tk);
+                                line_idx--;
+                            }
+                        }
+
+                        break;
+                    }
+                    case ARTICLE_TOKEN_TYPE_ITALIC_TEXT: {
+                        i64 start_c_idx = current_open_tk->data.it_text.line_idx == line_idx
+                                              ? current_open_tk->data.it_text.c_start_idx
+                                              : 0;
+
+                        bool end_of_tk = false;
+                        i64 c_idx;
+                        for (c_idx = start_c_idx; c_idx < line->len; c_idx++) {
+                            char c = line->data[c_idx];
+
+                            if (c == '*') {
+                                end_of_tk = true;
+                                break;
+                            }
+
+                            str_append(&current_open_tk->data.it_text.text, "%c", c);
+                        }
+
+                        if (end_of_tk) {
+                            ArticleToken it_close_tk = {
+                                TOKEN_PAREN_CLOSE,
+                                ARTICLE_TOKEN_TYPE_ITALIC_TEXT
+                            };
+
+                            ARRAY_PUSH(&tks, &it_close_tk);
+
+                            ArticleToken reg_open_tk = {
+                                TOKEN_PAREN_OPEN,
+                                ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                            };
+
+                            reg_open_tk.data.reg_text.c_start_idx = c_idx + 1;
+                            reg_open_tk.data.reg_text.line_idx = line_idx;
+                            reg_open_tk.data.reg_text.text = str_make(arena, "");
+
+                            current_open_tk_idx = tks.len;
+
+                            ARRAY_PUSH(&tks, &reg_open_tk);
+                        }
+
+                        break;
+                    }
+                    case ARTICLE_TOKEN_TYPE_BOLD_TEXT: {
+                        break;
+                    }
+                    default: {
+                        current_open_tk_idx = -1;
+                        break;
+                    }
+                }
+            } else {
             }
         }
     }
