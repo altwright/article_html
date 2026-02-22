@@ -7,7 +7,9 @@ add_library(article_html STATIC library.c
         metadata.c
         metadata.h
         test.c
-        test.h)
+        test.h
+        body.c
+        body.h)
 
 add_executable(article_html_test
         test.c

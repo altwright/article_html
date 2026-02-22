@@ -7,8 +7,8 @@
 static const char *kMetadataDelimiter = "---";
 static const char *kMetadataFieldAssignDelimiter = "=";
 
-bool metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map) {
-    bool found = false;
+i64 metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map) {
+    i64 end_metadata_line_idx = -1;
 
     i32 meta_delim_count = 0;
 
@@ -38,11 +38,11 @@ bool metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map)
                     HASHMAP_PUT(out_map, &key_str.data, &val_str);
                 }
             } else if (meta_delim_count >= 2) {
-                found = true;
+                end_metadata_line_idx = line - file_lines->data;
                 break;
             }
         }
     }
 
-    return found;
+    return end_metadata_line_idx;
 }

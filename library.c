@@ -8,18 +8,16 @@
 #include <altcore/strings.h>
 #include <altcore/hashmap.h>
 
+#include "body.h"
 #include "metadata.h"
 #include "altcore/defer.h"
 
-static Arena g_arena = {};
 static bool g_initialized = false;
+static i64 kMallocInitialCapacity = 1024LL * 1024LL;
 
 void article_init() {
     if (!g_initialized) {
-        i64 malloc_cap = 1024LL * 1024LL;
-        alt_init(malloc_cap);
-
-        g_arena = arena_make(malloc_cap / 2);
+        alt_init(kMallocInitialCapacity);
 
         g_initialized = true;
     }
@@ -27,7 +25,6 @@ void article_init() {
 
 void article_uninit() {
     if (g_initialized) {
-        arena_free(&g_arena);
         alt_uninit();
 
         g_initialized = false;
@@ -39,15 +36,14 @@ char *article_to_html(const char *filepath) {
         return nullptr;
     }
 
-    Arena tmp = g_arena;
+    char *html_malloc = nullptr;
 
     FILE *fp = fopen(filepath, "rb");
     if (!fp) {
         return nullptr;
     }
 
-    char *html_malloc = nullptr;
-
+    Arena tmp = arena_make(kMallocInitialCapacity / 2);
     string file_buffer = {&tmp};
 
     int err = 0;
@@ -73,15 +69,20 @@ char *article_to_html(const char *filepath) {
     string default_str = {};
     HASHMAP_MAKE(&metadata_map, &default_str);
 
-    DEFER(HASHMAP_FREE(&metadata_map)) {
-        bool metadata_found = metadata_get(&tmp, &file_lines, &metadata_map);
+    i64 start_body_line_idx = metadata_get(&tmp, &file_lines, &metadata_map);
+    if (start_body_line_idx >= 0) {
+        string html = str_make(&tmp, "");
 
-        HASHMAP_FOR(pair, &metadata_map) {
-            printf("%s = %s\n", pair->key, pair->value.data);
-        }
+        body_to_html(&tmp, &metadata_map, &file_lines, start_body_line_idx, &html);
+
+        html_malloc = calloc(html.len + 1, sizeof(char));
+        assert(html_malloc);
+        memcpy(html_malloc, html.data, html.len);
     }
 
-    string html = str_make(&tmp, "");
+    HASHMAP_FREE(&metadata_map);
+
+    arena_free(&tmp);
 
     return html_malloc;
 }
