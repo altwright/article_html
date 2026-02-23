@@ -40,8 +40,8 @@ typedef struct PARAGRAPH_TOKEN_DATA_T {
 } ParagraphTokenData;
 
 typedef struct TEXT_TOKEN_DATA_T {
-    i64 line_idx;
-    i64 c_start_idx;
+    i64 start_line_idx;
+    i64 start_c_idx;
     string text;
 } TextTokenData;
 
@@ -318,74 +318,26 @@ void body_to_html(
             if (line->len > 0) {
                 switch (current_open_tk->type) {
                     case ARTICLE_TOKEN_TYPE_PARAGRAPH: {
-                        char first_c = line->data[0];
-
-                        TextTokenData text_tk_data = {
-                            .line_idx = line_idx,
-                            .c_start_idx = 0
+                        ArticleToken reg_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_REGULAR_TEXT
                         };
-                        text_tk_data.text = str_make(arena, "");
 
-                        bool is_special = false;
-                        switch (first_c) {
-                            case '*': {
-                                is_special = true;
-                                char second_c = '\0';
-                                if (line->len > 1) {
-                                    second_c = line->data[1];
-                                }
+                        reg_open_tk.data.reg_text.start_c_idx = 0;
+                        reg_open_tk.data.reg_text.start_line_idx = line_idx;
+                        reg_open_tk.data.reg_text.text = str_make(arena, "");
 
-                                current_open_tk_idx = tks.len;
+                        current_open_tk_idx = tks.len;
 
-                                if (second_c == '*') {
-                                    ArticleToken bold_open_tk = {
-                                        TOKEN_PAREN_OPEN,
-                                        ARTICLE_TOKEN_TYPE_BOLD_TEXT
-                                    };
-
-                                    bold_open_tk.data.bold_text = text_tk_data;
-
-                                    ARRAY_PUSH(&tks, &bold_open_tk);
-                                } else {
-                                    ArticleToken it_open_tk = {
-                                        TOKEN_PAREN_OPEN,
-                                        ARTICLE_TOKEN_TYPE_ITALIC_TEXT
-                                    };
-
-                                    it_open_tk.data.it_text = text_tk_data;
-
-                                    ARRAY_PUSH(&tks, &it_open_tk);
-                                }
-
-                                break;
-                            }
-                            case '{': {
-                                break;
-                            }
-                            default:
-                                break;
-                        }
-
-                        if (!is_special) {
-                            ArticleToken reg_open_tk = {
-                                TOKEN_PAREN_OPEN,
-                                ARTICLE_TOKEN_TYPE_REGULAR_TEXT
-                            };
-
-                            reg_open_tk.data.reg_text = text_tk_data;
-
-                            current_open_tk_idx = tks.len;
-
-                            ARRAY_PUSH(&tks, &reg_open_tk);
-                        }
+                        ARRAY_PUSH(&tks, &reg_open_tk);
 
                         line_idx--;
 
                         break;
                     }
                     case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
-                        i64 start_char_idx = current_open_tk->data.reg_text.line_idx == line_idx
-                                                 ? current_open_tk->data.reg_text.c_start_idx
+                        i64 start_char_idx = current_open_tk->data.reg_text.start_line_idx == line_idx
+                                                 ? current_open_tk->data.reg_text.start_c_idx
                                                  : 0;
 
                         for (i64 c_idx = start_char_idx; c_idx < line->len; c_idx++) {
@@ -405,8 +357,8 @@ void body_to_html(
                                     }
 
                                     TextTokenData text_tk_data = {
-                                        .line_idx = line_idx,
-                                        .c_start_idx = is_italic ? c_idx + 1 : c_idx + 2,
+                                        .start_line_idx = line_idx,
+                                        .start_c_idx = is_italic ? c_idx + 1 : c_idx + 2,
                                         .text = str_make(arena, "")
                                     };
 
@@ -448,8 +400,8 @@ void body_to_html(
                         break;
                     }
                     case ARTICLE_TOKEN_TYPE_ITALIC_TEXT: {
-                        i64 start_c_idx = current_open_tk->data.it_text.line_idx == line_idx
-                                              ? current_open_tk->data.it_text.c_start_idx
+                        i64 start_c_idx = current_open_tk->data.it_text.start_line_idx == line_idx
+                                              ? current_open_tk->data.it_text.start_c_idx
                                               : 0;
 
                         bool end_of_tk = false;
@@ -478,18 +430,64 @@ void body_to_html(
                                 ARTICLE_TOKEN_TYPE_REGULAR_TEXT
                             };
 
-                            reg_open_tk.data.reg_text.c_start_idx = c_idx + 1;
-                            reg_open_tk.data.reg_text.line_idx = line_idx;
+                            reg_open_tk.data.reg_text.start_c_idx = c_idx + 1;
+                            reg_open_tk.data.reg_text.start_line_idx = line_idx;
                             reg_open_tk.data.reg_text.text = str_make(arena, "");
 
                             current_open_tk_idx = tks.len;
 
                             ARRAY_PUSH(&tks, &reg_open_tk);
+
+                            line_idx--;
                         }
 
                         break;
                     }
                     case ARTICLE_TOKEN_TYPE_BOLD_TEXT: {
+                        i64 start_c_idx = current_open_tk->data.bold_text.start_line_idx == line_idx
+                                              ? current_open_tk->data.bold_text.start_c_idx
+                                              : 0;
+
+                        bool end_of_tk = false;
+                        i64 c_idx;
+                        for (c_idx = start_c_idx; c_idx < line->len; c_idx++) {
+                            if (c_idx < line->len - 1) {
+                                char first_c = line->data[c_idx];
+                                char second_c = line->data[c_idx + 1];
+
+                                if (first_c == '*' && second_c == '*') {
+                                    end_of_tk = true;
+                                    break;
+                                }
+                            }
+
+                            str_append(&current_open_tk->data.bold_text.text, "%c", line->data[c_idx]);
+                        }
+
+                        if (end_of_tk) {
+                            ArticleToken bold_close_tk = {
+                                TOKEN_PAREN_CLOSE,
+                                ARTICLE_TOKEN_TYPE_BOLD_TEXT
+                            };
+
+                            ARRAY_PUSH(&tks, &bold_close_tk);
+
+                            ArticleToken reg_open_tk = {
+                                TOKEN_PAREN_OPEN,
+                                ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                            };
+
+                            reg_open_tk.data.reg_text.start_c_idx = c_idx + 2;
+                            reg_open_tk.data.reg_text.start_line_idx = line_idx;
+                            reg_open_tk.data.reg_text.text = str_make(arena, "");
+
+                            current_open_tk_idx = tks.len;
+
+                            ARRAY_PUSH(&tks, &reg_open_tk);
+
+                            line_idx--;
+                        }
+
                         break;
                     }
                     default: {
