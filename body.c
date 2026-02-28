@@ -4,6 +4,8 @@
 
 #include "body.h"
 
+#include <assert.h>
+
 #include "altcore/defer.h"
 
 typedef enum ARTICLE_TOKEN_TYPE_E {
@@ -181,6 +183,56 @@ static bool label_get_metablock(
     out_label_tk->name = terms.data[1];
 
     return true;
+}
+
+static i64 find_parent_open_tk_idx(const ArticleTokens *tks, i64 child_open_tk_idx) {
+    i64 idx = -1;
+
+    assert(child_open_tk_idx >= 0 && child_open_tk_idx < tks->len);
+
+    i64 current_child_tk_idx = child_open_tk_idx;
+
+    i64 unclosed_child_tk_count = 0;
+
+    while (idx < 0 && current_child_tk_idx > 0) {
+        if (unclosed_child_tk_count == 0) {
+            ArticleToken *child_open_tk = ARRAY_ELEM(tks, &current_child_tk_idx);
+            assert(child_open_tk->paren == TOKEN_PAREN_OPEN);
+        }
+
+        i64 prior_tk_idx = current_child_tk_idx - 1;
+        ArticleToken *prior_tk = ARRAY_ELEM(tks, &prior_tk_idx);
+
+        switch (prior_tk->paren) {
+            case TOKEN_PAREN_CLOSE: {
+                unclosed_child_tk_count++;
+                break;
+            }
+            case TOKEN_PAREN_OPEN: {
+                if (unclosed_child_tk_count > 0) {
+                    unclosed_child_tk_count--;
+                } else {
+                    idx = prior_tk_idx;
+                }
+                break;
+            }
+            default:
+                assert(0);
+                break;
+        }
+
+        current_child_tk_idx--;
+    }
+
+    return idx;
+}
+
+i64 find_closing_tk_idx(const ArticleTokens* tks, i64 open_tk_idx) {
+    i64 idx = -1;
+
+    assert(open_tk_idx >= 0 && open_tk_idx < tks->len);
+
+    return idx;
 }
 
 void body_to_html(
@@ -394,6 +446,13 @@ void body_to_html(
                                 current_open_tk_idx = tks.len;
                                 ARRAY_PUSH(&tks, &open_tk);
                                 line_idx--;
+
+                                break;
+                            }
+
+                            if (c_idx == line->len - 1) {
+                                // Replace new line with a space
+                                str_append(&current_open_tk->data.reg_text.text, " ");
                             }
                         }
 
@@ -415,6 +474,11 @@ void body_to_html(
                             }
 
                             str_append(&current_open_tk->data.it_text.text, "%c", c);
+
+                            if (c_idx == line->len - 1) {
+                                // Replace new line with a space
+                                str_append(&current_open_tk->data.reg_text.text, " ");
+                            }
                         }
 
                         if (end_of_tk) {
@@ -462,6 +526,11 @@ void body_to_html(
                             }
 
                             str_append(&current_open_tk->data.bold_text.text, "%c", line->data[c_idx]);
+
+                            if (c_idx == line->len - 1) {
+                                // Replace new line with a space
+                                str_append(&current_open_tk->data.reg_text.text, " ");
+                            }
                         }
 
                         if (end_of_tk) {
@@ -496,9 +565,71 @@ void body_to_html(
                     }
                 }
             } else {
+                switch (current_open_tk->type) {
+                    case ARTICLE_TOKEN_TYPE_BOLD_TEXT:
+                    case ARTICLE_TOKEN_TYPE_ITALIC_TEXT:
+                    case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
+                        // Within a paragraph
+
+                        ArticleToken close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            current_open_tk->type
+                        };
+
+                        ARRAY_PUSH(&tks, &close_tk);
+
+                        i64 parent_open_tk_idx = find_parent_open_tk_idx(&tks, current_open_tk_idx);
+                        assert(parent_open_tk_idx >= 0);
+
+                        ArticleToken *parent_open_tk = ARRAY_ELEM(&tks, &parent_open_tk_idx);
+                        assert(parent_open_tk->type == ARTICLE_TOKEN_TYPE_PARAGRAPH);
+
+                        ArticleToken paragraph_close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            ARTICLE_TOKEN_TYPE_PARAGRAPH,
+                        };
+
+                        ARRAY_PUSH(&tks, &paragraph_close_tk);
+
+                        current_open_tk_idx = -1;
+
+                        break;
+                    }
+                    default:
+                        break;
+                }
             }
         }
     }
+
+    /*
+    current_open_tk_idx = 0;
+
+    while (current_open_tk_idx < tks.len) {
+        ArticleToken *current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
+        assert(current_open_tk->paren == TOKEN_PAREN_OPEN);
+
+        switch (current_open_tk->type) {
+            case ARTICLE_TOKEN_TYPE_HEADING: {
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_PARAGRAPH: {
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_ITALIC_TEXT: {
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_BOLD_TEXT: {
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    */
 
     HASHMAP_FREE(&existing_labels);
 }
