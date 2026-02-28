@@ -36,7 +36,7 @@ char *article_to_html(const char *filepath) {
         return nullptr;
     }
 
-    char *html_malloc = nullptr;
+    char *body_html_buf = nullptr;
 
     FILE *fp = fopen(filepath, "rb");
     if (!fp) {
@@ -71,18 +71,18 @@ char *article_to_html(const char *filepath) {
 
     i64 start_body_line_idx = metadata_get(&tmp, &file_lines, &metadata_map);
     if (start_body_line_idx >= 0) {
-        string html = str_make(&tmp, "");
+        string body_html = str_make(&tmp, "");
 
-        body_to_html(&tmp, &metadata_map, &file_lines, start_body_line_idx, &html);
+        body_to_html(&tmp, &metadata_map, &file_lines, start_body_line_idx, &body_html);
 
-        html_malloc = calloc(html.len + 1, sizeof(char));
-        assert(html_malloc);
-        memcpy(html_malloc, html.data, html.len);
+        body_html_buf = calloc(body_html.len + 1, sizeof(char));
+        assert(body_html_buf);
+        memcpy(body_html_buf, body_html.data, body_html.len);
     }
 
     HASHMAP_FREE(&metadata_map);
 
     arena_free(&tmp);
 
-    return html_malloc;
+    return body_html_buf;
 }
