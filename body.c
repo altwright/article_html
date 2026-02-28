@@ -227,10 +227,42 @@ static i64 find_parent_open_tk_idx(const ArticleTokens *tks, i64 child_open_tk_i
     return idx;
 }
 
-i64 find_closing_tk_idx(const ArticleTokens* tks, i64 open_tk_idx) {
+i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
     i64 idx = -1;
 
     assert(open_tk_idx >= 0 && open_tk_idx < tks->len);
+    ArticleToken* open_tk = ARRAY_ELEM(tks, &open_tk_idx);
+    assert(open_tk->paren == TOKEN_PAREN_OPEN);
+
+    i64 current_tk_idx = open_tk_idx;
+
+    i64 nested_tk_count = 0;
+
+    while (idx < 0 && current_tk_idx < tks->len - 1) {
+        i64 next_tk_idx = current_tk_idx + 1;
+
+        ArticleToken *next_open_tk = ARRAY_ELEM(tks, &next_tk_idx);
+
+        switch (next_open_tk->paren) {
+            case TOKEN_PAREN_CLOSE: {
+                if (nested_tk_count > 0) {
+                    nested_tk_count--;
+                } else {
+                    idx = next_tk_idx;
+                }
+                break;
+            }
+            case TOKEN_PAREN_OPEN: {
+                nested_tk_count++;
+                break;
+            }
+            default:
+                assert(0);
+                break;
+        }
+
+        current_tk_idx++;
+    }
 
     return idx;
 }
@@ -602,34 +634,81 @@ void body_to_html(
         }
     }
 
-    /*
-    current_open_tk_idx = 0;
-
-    while (current_open_tk_idx < tks.len) {
-        ArticleToken *current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
+    while (current_open_tk_idx >= 0) {
+        ArticleToken* current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
         assert(current_open_tk->paren == TOKEN_PAREN_OPEN);
 
-        switch (current_open_tk->type) {
+        ArticleToken close_tk = {
+            TOKEN_PAREN_CLOSE,
+            current_open_tk->type
+        };
+
+        ARRAY_PUSH(&tks, &close_tk);
+        current_open_tk_idx = find_parent_open_tk_idx(&tks, current_open_tk_idx);
+    }
+
+    i64 current_tk_idx = 0;
+
+    while (current_tk_idx >= 0 && current_tk_idx < tks.len) {
+        ArticleToken *current_tk = ARRAY_ELEM(&tks, &current_tk_idx);
+
+        switch (current_tk->type) {
             case ARTICLE_TOKEN_TYPE_HEADING: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                i32 heading_level = current_tk->data.heading.level;
+                str_append(out_html, "<h%d>", heading_level);
+                str_append(out_html, "%s", current_tk->data.heading.text.data);
+                str_append(out_html, "</h%d>", heading_level);
+
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+
                 break;
             }
             case ARTICLE_TOKEN_TYPE_PARAGRAPH: {
+                switch (current_tk->paren) {
+                    case TOKEN_PAREN_OPEN: {
+                        str_append(out_html, "<p>");
+                        break;
+                    }
+                    case TOKEN_PAREN_CLOSE: {
+                        str_append(out_html, "</p>");
+                        break;
+                    }
+                    default:
+                        assert(0);
+                        break;
+                }
                 break;
             }
             case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+                str_append(out_html, "%s", current_tk->data.reg_text.text.data);
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
                 break;
             }
             case ARTICLE_TOKEN_TYPE_ITALIC_TEXT: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+                str_append(out_html, "<i>%s</i>", current_tk->data.it_text.text.data);
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
                 break;
             }
             case ARTICLE_TOKEN_TYPE_BOLD_TEXT: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+                str_append(out_html, "<b>%s</b>", current_tk->data.bold_text.text.data);
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
                 break;
             }
             default:
                 break;
         }
+
+        current_tk_idx++;
     }
-    */
 
     HASHMAP_FREE(&existing_labels);
 }
