@@ -31,16 +31,15 @@ void article_uninit() {
     }
 }
 
-char *article_to_html(const char *filepath) {
+ArticleData article_parse(const char *filepath) {
+    ArticleData data = {};
     if (!filepath) {
-        return nullptr;
+        return data;
     }
-
-    char *body_html_buf = nullptr;
 
     FILE *fp = fopen(filepath, "rb");
     if (!fp) {
-        return nullptr;
+        return data;
     }
 
     Arena tmp = arena_make(kMallocInitialCapacity / 2);
@@ -75,14 +74,43 @@ char *article_to_html(const char *filepath) {
 
         body_to_html(&tmp, &metadata_map, &file_lines, start_body_line_idx, &body_html);
 
-        body_html_buf = calloc(body_html.len + 1, sizeof(char));
-        assert(body_html_buf);
-        memcpy(body_html_buf, body_html.data, body_html.len);
+        data.body_html = calloc(body_html.len + 1, sizeof(char));
+        assert(data.body_html);
+        memcpy(data.body_html, body_html.data, body_html.len);
     }
 
     HASHMAP_FREE(&metadata_map);
 
     arena_free(&tmp);
 
-    return body_html_buf;
+    return data;
+}
+
+void article_free(ArticleData *data) {
+    if (data) {
+        if (data->title) {
+            free(data->title);
+            data->title = nullptr;
+        }
+        if (data->subtitle) {
+            free(data->subtitle);
+            data->subtitle = nullptr;
+        }
+        if (data->author) {
+            free(data->author);
+            data->author = nullptr;
+        }
+        if (data->date_created) {
+            free(data->date_created);
+            data->date_created = nullptr;
+        }
+        if (data->date_modified) {
+            free(data->date_modified);
+            data->date_modified = nullptr;
+        }
+        if (data->body_html) {
+            free(data->body_html);
+            data->body_html = nullptr;
+        }
+    }
 }
