@@ -34,3 +34,6 @@ target_include_directories(article_html_test PRIVATE
 target_link_libraries(article_html_test PRIVATE
         article_html
 )
+
+#target_compile_options(article_html_test PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer" "-g")
+#target_link_options(article_html_test PRIVATE "-fsanitize=address")

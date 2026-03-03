@@ -10,13 +10,15 @@
 #include "library.h"
 
 int main(int argc, char ** argv) {
-    article_init();
+    for (int i = 0; i < 10; i++) {
+        article_init();
 
-    char * html = article_to_html("data/draft_1.xmd");
-    if (html) {
-        printf("%s\n", html);
-        free(html);
+        char * html = article_to_html("data/draft_1.xmd");
+        if (html) {
+            printf("%s\n", html);
+            free(html);
+        }
+
+        article_uninit();
     }
-
-    article_uninit();
 }
