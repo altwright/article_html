@@ -5,8 +5,9 @@
 #include "body.h"
 
 #include <assert.h>
+#include <curl/curl.h>
 
-#include "altcore/defer.h"
+extern CURL* g_curl;
 
 typedef enum ARTICLE_TOKEN_TYPE_E {
 #ifndef X_ARTICLE_TOKEN_TYPES
@@ -22,6 +23,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(UNORDERED_LIST) \
     X(ORDERED_LIST) \
     X(LABEL) \
+    X(BIBLE_BLOCK) \
     X(COUNT)
 #endif
 
@@ -56,6 +58,10 @@ typedef struct LABEL_TOKEN_DATA_T {
     i64 ref_count;
 } LabelTokenData;
 
+typedef struct BIBLE_BLOCK_TOKEN_DATA_T {
+    string verse_refs;
+} BibleBlockTokenData;
+
 typedef enum TOKEN_PAREN_E {
 #ifndef X_TOKEN_PARENS
 #define X_TOKEN_PARENS \
@@ -84,6 +90,7 @@ typedef struct ARTICLE_TOKEN_T {
         ItalicTextTokenData it_text;
         BoldTextTokenData bold_text;
         LabelTokenData label;
+        BibleBlockTokenData bible_block;
     } data;
 } ArticleToken;
 
@@ -98,6 +105,55 @@ typedef struct LABELS_MAP_T {
 typedef struct METABLOCK_RANGE_T {
     i64 start_c_idx, end_c_idx;
 } MetablockRange;
+
+typedef enum METABLOCK_KEY_E : i32 {
+#ifndef X_METABLOCK_KEYS
+#define X_METABLOCK_KEYS \
+    X(LABEL) \
+    X(BIBLE) \
+    X(COUNT)
+#endif
+#ifndef X
+#define X(key) \
+    METABLOCK_KEY_##key,
+#endif
+    X_METABLOCK_KEYS
+#undef X
+} MetablockKey;
+
+static const char *kMetablockKeyStrs[] = {
+#ifndef X
+#define X(key) \
+    #key,
+#endif
+    X_METABLOCK_KEYS
+#undef X
+};
+
+typedef enum BIBLE_SUBKEY_E : i32 {
+#ifndef X_BIBLE_SUBKEYS
+#define X_BIBLE_SUBKEYS \
+    X(BLOCK) \
+    X(HOVER) \
+    X(CITE) \
+    X(COUNT)
+#endif
+#ifndef X
+#define X(subkey) \
+    BIBLE_SUBKEY_##subkey,
+#endif
+    X_BIBLE_SUBKEYS
+#undef X
+} BibleSubkey;
+
+static const char* kBibleSubkeyStrs[] = {
+#ifndef X
+#define X(subkey) \
+    #subkey,
+#endif
+    X_BIBLE_SUBKEYS
+#undef X
+};
 
 static const char *kMetablockStartDelimiter = "{{";
 static const char *kMetablockEndDelimiter = "}}";
@@ -231,7 +287,7 @@ i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
     i64 idx = -1;
 
     assert(open_tk_idx >= 0 && open_tk_idx < tks->len);
-    ArticleToken* open_tk = ARRAY_ELEM(tks, &open_tk_idx);
+    ArticleToken *open_tk = ARRAY_ELEM(tks, &open_tk_idx);
     assert(open_tk->paren == TOKEN_PAREN_OPEN);
 
     i64 current_tk_idx = open_tk_idx;
@@ -375,6 +431,116 @@ void body_to_html(
                     }
                     case '{': {
                         // Metablock
+                        MetablockRange metablock_range = metablock_find_range(arena, &line_view);
+
+                        if (metablock_range.start_c_idx >= 0 && metablock_range.end_c_idx >= 0) {
+                            string_view metablock_view = {
+                                line_view.data + metablock_range.start_c_idx,
+                                metablock_range.end_c_idx - metablock_range.start_c_idx
+                            };
+
+                            str_view_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
+                            metablock_view.len -= (i64) strlen(kMetablockEndDelimiter);
+
+                            str_view_strip(&metablock_view);
+                            string metablock_content_str = str_view_make(arena, &metablock_view);
+                            strings metablock_val_strs = str_split(arena, &metablock_content_str, " ");
+                            const string *key_str = &metablock_val_strs.data[0];
+
+                            MetablockKey metablock_key = METABLOCK_KEY_COUNT;
+
+                            for (i32 key_idx = 0; key_idx < METABLOCK_KEY_COUNT; key_idx++) {
+                                string current_key_str = str_make(arena, "%s", kMetablockKeyStrs[key_idx]);
+                                str_to_lower(&current_key_str);
+
+                                if (strncmp(key_str->data, current_key_str.data, current_key_str.len) == 0) {
+                                    metablock_key = key_idx;
+                                    break;
+                                }
+                            }
+
+                            switch (metablock_key) {
+                                case METABLOCK_KEY_BIBLE: {
+                                    if (metablock_val_strs.len >= 3) {
+                                        const string *subkey_str = &metablock_val_strs.data[1];
+
+                                        BibleSubkey bible_subkey = BIBLE_SUBKEY_COUNT;
+                                        for (i32 subkey_idx = 0; subkey_idx < BIBLE_SUBKEY_COUNT; subkey_idx++) {
+                                            string current_subkey_str = str_make(
+                                                arena,
+                                                "%s",
+                                                kBibleSubkeyStrs[subkey_idx]
+                                            );
+
+                                            str_to_lower(&current_subkey_str);
+
+                                            if (strncmp(
+                                                subkey_str->data,
+                                                current_subkey_str.data,
+                                                current_subkey_str.len
+                                                ) == 0
+                                            ) {
+                                                bible_subkey = subkey_idx;
+                                                break;
+                                            }
+                                        }
+
+                                        switch (bible_subkey) {
+                                            case BIBLE_SUBKEY_BLOCK: {
+                                                string verse_refs_str = str_make(arena, "");
+
+                                                for (i32 metablock_val_str_idx = 2;
+                                                    metablock_val_str_idx < metablock_val_strs.len;
+                                                    metablock_val_str_idx++
+                                                ) {
+                                                    str_append(
+                                                        &verse_refs_str,
+                                                        "%s",
+                                                        metablock_val_strs.data[metablock_val_str_idx].data
+                                                    );
+
+                                                    if (metablock_val_str_idx < metablock_val_strs.len - 1) {
+                                                        str_append(&verse_refs_str, " ");
+                                                    }
+                                                }
+
+                                                BibleBlockTokenData block_data = {
+                                                    .verse_refs = verse_refs_str
+                                                };
+
+                                                ArticleToken open_tk = {
+                                                    TOKEN_PAREN_OPEN,
+                                                    ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
+                                                };
+
+                                                open_tk.data.bible_block = block_data;
+
+                                                ARRAY_PUSH(&tks, &open_tk);
+
+                                                ArticleToken close_tk = {
+                                                    TOKEN_PAREN_CLOSE,
+                                                    ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
+                                                };
+
+                                                ARRAY_PUSH(&tks, &close_tk);
+
+                                                break;
+                                            }
+                                            case BIBLE_SUBKEY_CITE:
+                                            case BIBLE_SUBKEY_HOVER: {
+                                                break;
+                                            }
+                                            default:
+                                                break;
+                                        }
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+
                         break;
                     }
                     default: // Paragraph
@@ -635,7 +801,7 @@ void body_to_html(
     }
 
     while (current_open_tk_idx >= 0) {
-        ArticleToken* current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
+        ArticleToken *current_open_tk = ARRAY_ELEM(&tks, &current_open_tk_idx);
         assert(current_open_tk->paren == TOKEN_PAREN_OPEN);
 
         ArticleToken close_tk = {
@@ -699,6 +865,32 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_BOLD_TEXT: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
                 str_append(out_html, "<b>%s</b>", current_tk->data.bold_text.text.data);
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_BIBLE_BLOCK: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                const string* verse_str = &current_tk->data.bible_block.verse_refs;
+                char* escaped_verse_str = curl_easy_escape(
+                    g_curl,
+                    verse_str->data,
+                    0
+                );
+                assert(escaped_verse_str);
+
+                str_append(out_html,
+                    "<iframe "
+                            "src=\"https://lsbible.org/ref-tagger/?ref=%s\" "
+                            "title=\"%s\" "
+                        ">"
+                            "<p>bible block iframe is disabled by your browser</p>"
+                        "</iframe>",
+                        escaped_verse_str,
+                        verse_str->data
+                );
+
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
                 break;
