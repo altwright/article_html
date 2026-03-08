@@ -9,7 +9,9 @@ add_library(article_html STATIC library.c
         test.c
         test.h
         body.c
-        body.h)
+        body.h
+        bible.c
+        bible.h)
 
 add_executable(article_html_test
         test.c
@@ -17,8 +19,6 @@ add_executable(article_html_test
 
 add_subdirectory(libs/altcore)
 add_subdirectory(libs/bibtool_wrapper)
-# Need libpsl-devel on system
-add_subdirectory(libs/curl)
 
 target_include_directories(article_html PRIVATE
         libs/
@@ -27,7 +27,6 @@ target_include_directories(article_html PRIVATE
 target_link_libraries(article_html PRIVATE
         altcore
         bibtool_wrapper
-        CURL::libcurl
 )
 
 target_include_directories(article_html_test PRIVATE

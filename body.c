@@ -5,9 +5,7 @@
 #include "body.h"
 
 #include <assert.h>
-#include <curl/curl.h>
-
-extern CURL* g_curl;
+#include "bible.h"
 
 typedef enum ARTICLE_TOKEN_TYPE_E {
 #ifndef X_ARTICLE_TOKEN_TYPES
@@ -440,7 +438,7 @@ void body_to_html(
                             };
 
                             str_view_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
-                            metablock_view.len -= (i64) strlen(kMetablockEndDelimiter);
+                            str_view_strip(&metablock_view);
 
                             str_view_strip(&metablock_view);
                             string metablock_content_str = str_view_make(arena, &metablock_view);
@@ -873,23 +871,6 @@ void body_to_html(
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
                 const string* verse_str = &current_tk->data.bible_block.verse_refs;
-                char* escaped_verse_str = curl_easy_escape(
-                    g_curl,
-                    verse_str->data,
-                    0
-                );
-                assert(escaped_verse_str);
-
-                str_append(out_html,
-                    "<iframe "
-                            "src=\"https://lsbible.org/ref-tagger/?ref=%s\" "
-                            "title=\"%s\" "
-                        ">"
-                            "<p>bible block iframe is disabled by your browser</p>"
-                        "</iframe>",
-                        escaped_verse_str,
-                        verse_str->data
-                );
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);

@@ -7,7 +7,6 @@
 #include <altcore/arenas.h>
 #include <altcore/strings.h>
 #include <altcore/hashmap.h>
-#include <curl/curl.h>
 
 #include "body.h"
 #include "metadata.h"
@@ -15,14 +14,10 @@
 
 static bool g_initialized = false;
 static i64 kMallocInitialCapacity = 1024LL * 1024LL;
-CURL* g_curl = nullptr;
 
 void article_init() {
     if (!g_initialized) {
         alt_init(kMallocInitialCapacity);
-
-        g_curl = curl_easy_init();
-        assert(g_curl);
 
         g_initialized = true;
     }
@@ -31,9 +26,6 @@ void article_init() {
 void article_uninit() {
     if (g_initialized) {
         alt_uninit();
-
-        curl_easy_cleanup(g_curl);
-        g_curl = nullptr;
 
         g_initialized = false;
     }
