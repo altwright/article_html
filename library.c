@@ -8,16 +8,19 @@
 #include <altcore/strings.h>
 #include <altcore/hashmap.h>
 
+#include "bible.h"
 #include "body.h"
 #include "metadata.h"
 #include "altcore/defer.h"
 
 static bool g_initialized = false;
-static i64 kMallocInitialCapacity = 1024LL * 1024LL;
+static i64 kMallocInitialCapacity = 1024LL * 1024LL * 1024LL;
 
 void article_init() {
     if (!g_initialized) {
         alt_init(kMallocInitialCapacity);
+
+        bible_init("./data/lsb.csv");
 
         g_initialized = true;
     }
@@ -25,6 +28,8 @@ void article_init() {
 
 void article_uninit() {
     if (g_initialized) {
+        bible_uninit();
+
         alt_uninit();
 
         g_initialized = false;

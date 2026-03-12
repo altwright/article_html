@@ -8,6 +8,13 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+
+#include "bibtool_wrapper/libs/altcore/memory.h"
+
+static bool g_bible_initialised = false;
+
+BibleVerseToHtmlMap g_lsb_verse_map = {HASHMAP_TYPE_STR_KEY};
 
 static const char *kBibleBookStrs[] = {
 #ifndef X
@@ -39,6 +46,118 @@ static const char *book_num_to_str(i32 book_num) {
     }
 
     return num_str;
+}
+
+void bible_init(const char *lsb_csv_filepath) {
+    Arena arena = arena_make(200 * 1024 * 1024);
+
+    if (!g_bible_initialised) {
+        g_lsb_verse_map = (BibleVerseToHtmlMap){HASHMAP_TYPE_STR_KEY};
+
+        char *default_val = nullptr;
+        HASHMAP_MAKE(&g_lsb_verse_map, &default_val);
+
+        FILE *fp = fopen("./data/lsb.csv", "rb");
+        assert(fp);
+
+        fseek(fp, 0, SEEK_END);
+        long fsize = ftell(fp);
+        fseek(fp, 0, SEEK_SET);
+
+        string csv_str = {&arena, fsize + 1};
+        ARRAY_MAKE(&csv_str);
+        memset(csv_str.data, 0, csv_str.len);
+
+        u64 bytes_read = fread(csv_str.data, 1, fsize, fp);
+        assert(bytes_read == fsize);
+
+        strings lines = str_split(&arena, &csv_str, "\n");
+
+        for (i64 line_idx = 1; line_idx < lines.len; line_idx++) {
+            const string *line = lines.data + line_idx;
+
+            i64s comma_idxs = str_split_idxs(&arena, line, ",");
+            assert(comma_idxs.len >= 3);
+
+            string_view b_ch_v_view = {
+                .data = line->data,
+                .len = comma_idxs.data[2],
+            };
+
+            string b_ch_v_str = str_view_make(&arena, &b_ch_v_view);
+
+            strings b_ch_v_str_parts = str_split(&arena, &b_ch_v_str, ",");
+            assert(b_ch_v_str_parts.len == 3);
+
+            const string *book_str = &b_ch_v_str_parts.data[0];
+            const string *chapter_str = &b_ch_v_str_parts.data[1];
+            const string *verse_str = &b_ch_v_str_parts.data[2];
+
+            string bible_key_str = str_make(&arena, "");
+
+            bool is_numbered_book = false;
+
+            if (isdigit(book_str->data[0])) {
+                char *title_start = nullptr;
+                i64 book_num = strtol(book_str->data, &title_start, 10);
+                const char *num_str = book_num_to_str((i32) book_num);
+
+                if (num_str && title_start) {
+                    title_start++; // Skip the space
+                    is_numbered_book = true;
+
+                    string_view title_view = {
+                        title_start,
+                        (book_str->data + book_str->len) - title_start,
+                    };
+                    str_append(&bible_key_str, "%s_%.*s_", num_str, title_view.len, title_view.data);
+                }
+            }
+
+            if (!is_numbered_book) {
+                str_append(&bible_key_str, "%s_", book_str->data);
+            }
+
+            str_append(&bible_key_str, "%s_%s", chapter_str->data, verse_str->data);
+            str_to_upper(&bible_key_str);
+            ARRAY_FOR(c, &bible_key_str) {
+                if (*c == ' ') {
+                    *c = '_';
+                }
+            }
+
+            string_view text_view = {
+                line->data + comma_idxs.data[2] + 1,
+            };
+            text_view.len = (line->data + line->len) - text_view.data;
+            if (text_view.len > 0) {
+                char* text_str = alt_calloc(text_view.len + 1, sizeof(char));
+                assert(text_str);
+                snprintf(text_str, text_view.len, "%s", text_view.data);
+
+                HASHMAP_PUT(&g_lsb_verse_map, &bible_key_str.data, &text_str);
+            }
+        }
+
+        int err = fclose(fp);
+        assert(!err);
+
+        g_bible_initialised = true;
+    }
+
+    arena_free(&arena);
+}
+
+void bible_uninit() {
+    if (g_bible_initialised) {
+        HASHMAP_FOR(key_val, &g_lsb_verse_map) {
+            alt_free(key_val->value);
+        }
+
+        HASHMAP_FREE(&g_lsb_verse_map);
+
+        g_bible_initialised = false;
+    }
 }
 
 BiblePassages bible_parse_ref(Arena *arena, const string *ref) {

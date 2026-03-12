@@ -5,6 +5,5 @@
     <mapping directory="$PROJECT_DIR$/libs/altcore" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/bibtool_wrapper" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/libs/bibtool_wrapper/libs/altcore" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/libs/curl" vcs="Git" />
   </component>
 </project>

@@ -8,6 +8,7 @@
 #include <altcore/types.h>
 #include <altcore/strings.h>
 #include <altcore/arenas.h>
+#include <altcore/hashmap.h>
 
 typedef enum BIBLE_BOOK_E : i32 {
 #ifndef X_BIBLE_BOOKS
@@ -33,7 +34,7 @@ typedef enum BIBLE_BOOK_E : i32 {
     X(PSALMS) \
     X(PROVERBS) \
     X(ECCLESIASTES) \
-    X(SONG_OF_SOLOMON) \
+    X(SONG_OF_SONGS) \
     X(ISAIAH) \
     X(JEREMIAH) \
     X(LAMENTATIONS) \
@@ -103,6 +104,16 @@ typedef struct BIBLE_PASSAGES_T {
     ARRAY_FIELDS(BiblePassage);
 } BiblePassages;
 
-BiblePassages bible_parse_ref(Arena* arena, const string* ref);
+typedef struct BIBLE_VERSE_TO_HTML_MAP_T {
+    HASHMAP_FIELDS(const char*, char*)
+} BibleVerseToHtmlMap;
+
+extern BibleVerseToHtmlMap g_lsb_verse_map;
+
+void bible_init(const char *lsb_csv_filepath);
+
+void bible_uninit();
+
+BiblePassages bible_parse_ref(Arena *arena, const string *ref);
 
 #endif //ARTICLE_HTML_BIBLE_H

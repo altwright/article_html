@@ -57,7 +57,7 @@ typedef struct LABEL_TOKEN_DATA_T {
 } LabelTokenData;
 
 typedef struct BIBLE_BLOCK_TOKEN_DATA_T {
-    string verse_refs;
+    BiblePassages passages;
 } BibleBlockTokenData;
 
 typedef enum TOKEN_PAREN_E {
@@ -503,7 +503,7 @@ void body_to_html(
                                                 }
 
                                                 BibleBlockTokenData block_data = {
-                                                    .verse_refs = verse_refs_str
+                                                    .passages = bible_parse_ref(arena, &verse_refs_str),
                                                 };
 
                                                 ArticleToken open_tk = {
@@ -869,8 +869,6 @@ void body_to_html(
             }
             case ARTICLE_TOKEN_TYPE_BIBLE_BLOCK: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
-
-                const string* verse_str = &current_tk->data.bible_block.verse_refs;
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
