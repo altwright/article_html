@@ -110,10 +110,14 @@ typedef struct BIBLE_VERSE_TO_HTML_MAP_T {
 
 extern BibleVerseToHtmlMap g_lsb_verse_map;
 
+extern const char *kBibleBookStrs[];
+
 void bible_init(const char *lsb_csv_filepath);
 
 void bible_uninit();
 
 BiblePassages bible_parse_ref(Arena *arena, const string *ref);
+
+string bible_passage_ref_to_str(Arena *arena, BiblePassage passage);
 
 #endif //ARTICLE_HTML_BIBLE_H

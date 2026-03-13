@@ -144,7 +144,7 @@ typedef enum BIBLE_SUBKEY_E : i32 {
 #undef X
 } BibleSubkey;
 
-static const char* kBibleSubkeyStrs[] = {
+static const char *kBibleSubkeyStrs[] = {
 #ifndef X
 #define X(subkey) \
     #subkey,
@@ -473,9 +473,9 @@ void body_to_html(
                                             str_to_lower(&current_subkey_str);
 
                                             if (strncmp(
-                                                subkey_str->data,
-                                                current_subkey_str.data,
-                                                current_subkey_str.len
+                                                    subkey_str->data,
+                                                    current_subkey_str.data,
+                                                    current_subkey_str.len
                                                 ) == 0
                                             ) {
                                                 bible_subkey = subkey_idx;
@@ -488,8 +488,8 @@ void body_to_html(
                                                 string verse_refs_str = str_make(arena, "");
 
                                                 for (i32 metablock_val_str_idx = 2;
-                                                    metablock_val_str_idx < metablock_val_strs.len;
-                                                    metablock_val_str_idx++
+                                                     metablock_val_str_idx < metablock_val_strs.len;
+                                                     metablock_val_str_idx++
                                                 ) {
                                                     str_append(
                                                         &verse_refs_str,
@@ -869,6 +869,41 @@ void body_to_html(
             }
             case ARTICLE_TOKEN_TYPE_BIBLE_BLOCK: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                str_append(out_html, "<div class=\"bible-block\">");
+                const BiblePassages *passages = &current_tk->data.bible_block.passages;
+
+                ARRAY_FOR(passage, passages) {
+                    if (passage->book < BIBLE_BOOK_COUNT &&
+                        passage->ch_v.chapter > 0 &&
+                        passage->ch_v.start_verse > 0) {
+                        i32 start_verse = passage->ch_v.start_verse;
+                        i32 end_verse = passage->ch_v.end_verse;
+                        if (end_verse < start_verse) {
+                            end_verse = start_verse;
+                        }
+
+                        for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
+                            string verse_key = str_make(arena, "%s_%d_%d",
+                                                        kBibleBookStrs[passage->book],
+                                                        passage->ch_v.chapter,
+                                                        current_verse
+                            );
+
+                            char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+                            if (verse_val) {
+                                str_append(out_html, "%s", verse_val);
+                            }
+                        }
+
+                        str_append(out_html, "<p class=\"bible-block-verse-ref\">");
+                        string ref_str = bible_passage_ref_to_str(arena, *passage);
+                        str_append(out_html, "%s", ref_str.data);
+                        str_append(out_html, "</p>");
+                    }
+                }
+
+                str_append(out_html, "</div");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);

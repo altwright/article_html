@@ -16,7 +16,7 @@ static bool g_bible_initialised = false;
 
 BibleVerseToHtmlMap g_lsb_verse_map = {HASHMAP_TYPE_STR_KEY};
 
-static const char *kBibleBookStrs[] = {
+const char *kBibleBookStrs[] = {
 #ifndef X
 #define X(book) \
     #book,
@@ -25,24 +25,17 @@ static const char *kBibleBookStrs[] = {
 #undef X
 };
 
+static const char* kBookNumStrs[] = {
+    "FIRST",
+    "SECOND",
+    "THIRD",
+};
+
 static const char *book_num_to_str(i32 book_num) {
     const char *num_str = nullptr;
 
-    switch (book_num) {
-        case 1: {
-            num_str = "FIRST";
-            break;
-        }
-        case 2: {
-            num_str = "SECOND";
-            break;
-        }
-        case 3: {
-            num_str = "THIRD";
-            break;
-        }
-        default:
-            break;
+    if (book_num > 0 && book_num <= 3) {
+        num_str = kBookNumStrs[book_num - 1];
     }
 
     return num_str;
@@ -295,4 +288,58 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
     }
 
     return passages;
+}
+
+string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
+    string ref_str = str_make(arena, "");
+
+    if (passage.book >= BIBLE_BOOK_COUNT) {
+        return ref_str;
+    }
+
+    const char* book_str = kBibleBookStrs[passage.book];
+    const char* start_str = book_str;
+    const char* num_str = nullptr;
+
+    i32 num_idx = 0;
+    for (num_idx = 0; num_idx < STATIC_ARRAY_LEN(kBookNumStrs); num_idx++) {
+        char* substr = nullptr;
+        if (substr = strstr(start_str, kBookNumStrs[num_idx]),
+            substr && (substr == start_str)) {
+            start_str += strlen(kBookNumStrs[num_idx]);
+            break;
+        }
+    }
+
+    if (num_idx < STATIC_ARRAY_LEN(kBookNumStrs)) {
+        str_append(&ref_str, "%d ", num_idx + 1);
+    }
+
+    string book_name = str_make(arena, "%s", start_str);
+    ARRAY_FOR(c, &book_name) {
+        if (*c == '_') {
+            *c = ' ';
+        }
+    }
+
+    string_view book_name_view = {
+        book_name.data,
+        book_name.len,
+    };
+
+    str_view_strip(&book_name_view);
+
+    book_name = str_view_make(arena, &book_name_view);
+
+    for (i32 c_idx = 1; c_idx < book_name.len; c_idx++) {
+        char *c = ARRAY_ELEM(&book_name, &c_idx);
+        *c = (char)tolower(*c);
+    }
+
+    str_append(&ref_str, "%s %d:%d", book_name.data, passage.ch_v.chapter, passage.ch_v.start_verse);
+    if (passage.ch_v.start_verse < passage.ch_v.end_verse) {
+        str_append(&ref_str, "-%d", passage.ch_v.end_verse);
+    }
+
+    return ref_str;
 }
