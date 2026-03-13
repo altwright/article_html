@@ -12,6 +12,15 @@
 
 #include "bibtool_wrapper/libs/altcore/memory.h"
 
+const char *kBibleSubkeyStrs[] = {
+#ifndef X
+#define X(subkey) \
+#subkey,
+#endif
+    X_BIBLE_SUBKEYS
+#undef X
+};
+
 static bool g_bible_initialised = false;
 
 BibleVerseToHtmlMap g_lsb_verse_map = {HASHMAP_TYPE_STR_KEY};
@@ -231,6 +240,14 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
                     BiblePassage prior_passage = passages.data[passages.len - 1];
                     ch_v.chapter = prior_passage.ch_v.chapter;
                 } else {
+                    BiblePassage passage = {
+                        .book = book,
+                    };
+
+                    passage.ch_v.chapter = (i32)strtol(ch_v_str->data, nullptr, 10);
+
+                    ARRAY_PUSH(&passages, &passage);
+
                     continue;
                 }
             }
@@ -342,4 +359,34 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
     }
 
     return ref_str;
+}
+
+BibleSubkey bible_get_subkey(const string* subkey_str) {
+    BibleSubkey bible_subkey = BIBLE_SUBKEY_COUNT;
+
+    Arena arena = arena_make(32 * BIBLE_SUBKEY_COUNT);
+
+    for (i32 subkey_idx = 0; subkey_idx < BIBLE_SUBKEY_COUNT; subkey_idx++) {
+        string current_subkey_str = str_make(
+            &arena,
+            "%s",
+            kBibleSubkeyStrs[subkey_idx]
+        );
+
+        str_to_lower(&current_subkey_str);
+
+        if (strncmp(
+                subkey_str->data,
+                current_subkey_str.data,
+                current_subkey_str.len
+            ) == 0
+        ) {
+            bible_subkey = subkey_idx;
+            break;
+        }
+    }
+
+    arena_free(&arena);
+
+    return bible_subkey;
 }

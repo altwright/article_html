@@ -108,9 +108,27 @@ typedef struct BIBLE_VERSE_TO_HTML_MAP_T {
     HASHMAP_FIELDS(const char*, char*)
 } BibleVerseToHtmlMap;
 
-extern BibleVerseToHtmlMap g_lsb_verse_map;
+typedef enum BIBLE_SUBKEY_E : i32 {
+#ifndef X_BIBLE_SUBKEYS
+#define X_BIBLE_SUBKEYS \
+X(BLOCK) \
+X(HOVER) \
+X(CITE) \
+X(COUNT)
+#endif
+#ifndef X
+#define X(subkey) \
+BIBLE_SUBKEY_##subkey,
+#endif
+    X_BIBLE_SUBKEYS
+#undef X
+} BibleSubkey;
+
+extern const char *kBibleSubkeyStrs[];
 
 extern const char *kBibleBookStrs[];
+
+extern BibleVerseToHtmlMap g_lsb_verse_map;
 
 void bible_init(const char *lsb_csv_filepath);
 
@@ -119,5 +137,7 @@ void bible_uninit();
 BiblePassages bible_parse_ref(Arena *arena, const string *ref);
 
 string bible_passage_ref_to_str(Arena *arena, BiblePassage passage);
+
+BibleSubkey bible_get_subkey(const string* subkey_str);
 
 #endif //ARTICLE_HTML_BIBLE_H

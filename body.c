@@ -7,6 +7,10 @@
 #include <assert.h>
 #include "bible.h"
 
+typedef struct METABLOCK_RANGE_T {
+    i64 start_c_idx, end_c_idx;
+} MetablockRange;
+
 typedef enum ARTICLE_TOKEN_TYPE_E {
 #ifndef X_ARTICLE_TOKEN_TYPES
 #define X_ARTICLE_TOKEN_TYPES \
@@ -22,6 +26,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(ORDERED_LIST) \
     X(LABEL) \
     X(BIBLE_BLOCK) \
+    X(BIBLE_HOVER) \
     X(COUNT)
 #endif
 
@@ -60,6 +65,11 @@ typedef struct BIBLE_BLOCK_TOKEN_DATA_T {
     BiblePassages passages;
 } BibleBlockTokenData;
 
+typedef struct BIBLE_HOWEVER_TOKEN_DATA_T {
+    BiblePassages passages;
+    i64 end_c_idx;
+} BibleHoverTokenData;
+
 typedef enum TOKEN_PAREN_E {
 #ifndef X_TOKEN_PARENS
 #define X_TOKEN_PARENS \
@@ -89,6 +99,7 @@ typedef struct ARTICLE_TOKEN_T {
         BoldTextTokenData bold_text;
         LabelTokenData label;
         BibleBlockTokenData bible_block;
+        BibleHoverTokenData bible_hover;
     } data;
 } ArticleToken;
 
@@ -100,9 +111,6 @@ typedef struct LABELS_MAP_T {
     HASHMAP_FIELDS(const char*, bool)
 } LabelsMap;
 
-typedef struct METABLOCK_RANGE_T {
-    i64 start_c_idx, end_c_idx;
-} MetablockRange;
 
 typedef enum METABLOCK_KEY_E : i32 {
 #ifndef X_METABLOCK_KEYS
@@ -125,31 +133,6 @@ static const char *kMetablockKeyStrs[] = {
     #key,
 #endif
     X_METABLOCK_KEYS
-#undef X
-};
-
-typedef enum BIBLE_SUBKEY_E : i32 {
-#ifndef X_BIBLE_SUBKEYS
-#define X_BIBLE_SUBKEYS \
-    X(BLOCK) \
-    X(HOVER) \
-    X(CITE) \
-    X(COUNT)
-#endif
-#ifndef X
-#define X(subkey) \
-    BIBLE_SUBKEY_##subkey,
-#endif
-    X_BIBLE_SUBKEYS
-#undef X
-} BibleSubkey;
-
-static const char *kBibleSubkeyStrs[] = {
-#ifndef X
-#define X(subkey) \
-    #subkey,
-#endif
-    X_BIBLE_SUBKEYS
 #undef X
 };
 
@@ -281,7 +264,7 @@ static i64 find_parent_open_tk_idx(const ArticleTokens *tks, i64 child_open_tk_i
     return idx;
 }
 
-i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
+static i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
     i64 idx = -1;
 
     assert(open_tk_idx >= 0 && open_tk_idx < tks->len);
@@ -319,6 +302,67 @@ i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
     }
 
     return idx;
+}
+
+typedef struct METABLOCK_DATA_T {
+    MetablockRange range;
+    MetablockKey key;
+    strings val_strs;
+} MetablockData;
+
+static MetablockData metablock_get_data(Arena *arena, const string_view *line_view) {
+    MetablockData metablock_data = {
+        METABLOCK_KEY_COUNT
+    };
+
+    metablock_data.range = metablock_find_range(arena, line_view);
+
+    if (metablock_data.range.start_c_idx >= 0 && metablock_data.range.end_c_idx >= 0) {
+        string_view metablock_view = {
+            line_view->data + metablock_data.range.start_c_idx,
+            metablock_data.range.end_c_idx - metablock_data.range.start_c_idx
+        };
+
+        str_view_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
+        str_view_strip(&metablock_view);
+
+        str_view_strip(&metablock_view);
+        string metablock_content_str = str_view_make(arena, &metablock_view);
+        metablock_data.val_strs = str_split(arena, &metablock_content_str, " ");
+        const string *key_str = &metablock_data.val_strs.data[0];
+
+        for (i32 key_idx = 0; key_idx < METABLOCK_KEY_COUNT; key_idx++) {
+            string current_key_str = str_make(arena, "%s", kMetablockKeyStrs[key_idx]);
+            str_to_lower(&current_key_str);
+
+            if (strncmp(key_str->data, current_key_str.data, current_key_str.len) == 0) {
+                metablock_data.key = key_idx;
+                break;
+            }
+        }
+    }
+
+    return metablock_data;
+}
+
+static string metablock_join_val_strs(Arena *arena, const strings *val_strs, i64 start_idx) {
+    assert(start_idx < val_strs->len);
+
+    string ref_str = str_make(arena, "");
+
+    for (
+        i64 val_str_idx = 2;
+        val_str_idx < val_strs->len;
+        val_str_idx++
+    ) {
+        str_append(&ref_str, "%s", val_strs->data[val_str_idx].data);
+
+        if (val_str_idx < val_strs->len - 1) {
+            str_append(&ref_str, " ");
+        }
+    }
+
+    return ref_str;
 }
 
 void body_to_html(
@@ -429,114 +473,66 @@ void body_to_html(
                     }
                     case '{': {
                         // Metablock
-                        MetablockRange metablock_range = metablock_find_range(arena, &line_view);
+                        MetablockData metablock_data = metablock_get_data(arena, &line_view);
 
-                        if (metablock_range.start_c_idx >= 0 && metablock_range.end_c_idx >= 0) {
-                            string_view metablock_view = {
-                                line_view.data + metablock_range.start_c_idx,
-                                metablock_range.end_c_idx - metablock_range.start_c_idx
-                            };
+                        switch (metablock_data.key) {
+                            case METABLOCK_KEY_BIBLE: {
+                                if (metablock_data.val_strs.len >= 3) {
+                                    const string *subkey_str = &metablock_data.val_strs.data[1];
 
-                            str_view_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
-                            str_view_strip(&metablock_view);
-
-                            str_view_strip(&metablock_view);
-                            string metablock_content_str = str_view_make(arena, &metablock_view);
-                            strings metablock_val_strs = str_split(arena, &metablock_content_str, " ");
-                            const string *key_str = &metablock_val_strs.data[0];
-
-                            MetablockKey metablock_key = METABLOCK_KEY_COUNT;
-
-                            for (i32 key_idx = 0; key_idx < METABLOCK_KEY_COUNT; key_idx++) {
-                                string current_key_str = str_make(arena, "%s", kMetablockKeyStrs[key_idx]);
-                                str_to_lower(&current_key_str);
-
-                                if (strncmp(key_str->data, current_key_str.data, current_key_str.len) == 0) {
-                                    metablock_key = key_idx;
-                                    break;
-                                }
-                            }
-
-                            switch (metablock_key) {
-                                case METABLOCK_KEY_BIBLE: {
-                                    if (metablock_val_strs.len >= 3) {
-                                        const string *subkey_str = &metablock_val_strs.data[1];
-
-                                        BibleSubkey bible_subkey = BIBLE_SUBKEY_COUNT;
-                                        for (i32 subkey_idx = 0; subkey_idx < BIBLE_SUBKEY_COUNT; subkey_idx++) {
-                                            string current_subkey_str = str_make(
+                                    switch (bible_get_subkey(subkey_str)) {
+                                        case BIBLE_SUBKEY_BLOCK: {
+                                            string verse_refs_str = metablock_join_val_strs(
                                                 arena,
-                                                "%s",
-                                                kBibleSubkeyStrs[subkey_idx]
+                                                &metablock_data.val_strs,
+                                                2
                                             );
 
-                                            str_to_lower(&current_subkey_str);
+                                            BibleBlockTokenData block_data = {
+                                                .passages = bible_parse_ref(arena, &verse_refs_str),
+                                            };
 
-                                            if (strncmp(
-                                                    subkey_str->data,
-                                                    current_subkey_str.data,
-                                                    current_subkey_str.len
-                                                ) == 0
-                                            ) {
-                                                bible_subkey = subkey_idx;
-                                                break;
-                                            }
+                                            ArticleToken open_tk = {
+                                                TOKEN_PAREN_OPEN,
+                                                ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
+                                            };
+
+                                            open_tk.data.bible_block = block_data;
+
+                                            ARRAY_PUSH(&tks, &open_tk);
+
+                                            ArticleToken close_tk = {
+                                                TOKEN_PAREN_CLOSE,
+                                                ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
+                                            };
+
+                                            ARRAY_PUSH(&tks, &close_tk);
+
+                                            break;
                                         }
+                                        case BIBLE_SUBKEY_CITE:
+                                        case BIBLE_SUBKEY_HOVER: {
+                                            ArticleToken tk = {
+                                                TOKEN_PAREN_OPEN,
+                                                ARTICLE_TOKEN_TYPE_PARAGRAPH,
+                                            };
 
-                                        switch (bible_subkey) {
-                                            case BIBLE_SUBKEY_BLOCK: {
-                                                string verse_refs_str = str_make(arena, "");
+                                            current_open_tk_idx = tks.len;
 
-                                                for (i32 metablock_val_str_idx = 2;
-                                                     metablock_val_str_idx < metablock_val_strs.len;
-                                                     metablock_val_str_idx++
-                                                ) {
-                                                    str_append(
-                                                        &verse_refs_str,
-                                                        "%s",
-                                                        metablock_val_strs.data[metablock_val_str_idx].data
-                                                    );
+                                            ARRAY_PUSH(&tks, &tk);
 
-                                                    if (metablock_val_str_idx < metablock_val_strs.len - 1) {
-                                                        str_append(&verse_refs_str, " ");
-                                                    }
-                                                }
+                                            line_idx--;
 
-                                                BibleBlockTokenData block_data = {
-                                                    .passages = bible_parse_ref(arena, &verse_refs_str),
-                                                };
-
-                                                ArticleToken open_tk = {
-                                                    TOKEN_PAREN_OPEN,
-                                                    ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
-                                                };
-
-                                                open_tk.data.bible_block = block_data;
-
-                                                ARRAY_PUSH(&tks, &open_tk);
-
-                                                ArticleToken close_tk = {
-                                                    TOKEN_PAREN_CLOSE,
-                                                    ARTICLE_TOKEN_TYPE_BIBLE_BLOCK
-                                                };
-
-                                                ARRAY_PUSH(&tks, &close_tk);
-
-                                                break;
-                                            }
-                                            case BIBLE_SUBKEY_CITE:
-                                            case BIBLE_SUBKEY_HOVER: {
-                                                break;
-                                            }
-                                            default:
-                                                break;
+                                            break;
                                         }
+                                        default:
+                                            break;
                                     }
-                                    break;
                                 }
-                                default:
-                                    break;
+                                break;
                             }
+                            default:
+                                break;
                         }
 
                         break;
@@ -623,6 +619,51 @@ void body_to_html(
                                     break;
                                 }
                                 case '{': {
+                                    string_view metablock_view = {
+                                        line->data + c_idx,
+                                        line->len - c_idx,
+                                    };
+
+                                    MetablockData metablock_data = metablock_get_data(arena, &metablock_view);
+
+                                    switch (metablock_data.key) {
+                                        case METABLOCK_KEY_BIBLE: {
+                                            if (metablock_data.val_strs.len >= 3) {
+                                                const string *subkey_str = &metablock_data.val_strs.data[1];
+
+                                                switch (bible_get_subkey(subkey_str)) {
+                                                    case BIBLE_SUBKEY_HOVER: {
+                                                        open_tk.type = ARTICLE_TOKEN_TYPE_BIBLE_HOVER;
+
+                                                        string verse_ref_str = metablock_join_val_strs(
+                                                            arena,
+                                                            &metablock_data.val_strs,
+                                                            2
+                                                        );
+
+                                                        open_tk.data.bible_hover.passages = bible_parse_ref(
+                                                            arena,
+                                                            &verse_ref_str
+                                                        );
+                                                        open_tk.data.bible_hover.end_c_idx = c_idx
+                                                            + metablock_data.range.end_c_idx
+                                                            + (i64)strlen(kMetablockEndDelimiter);
+
+                                                        new_tk = true;
+
+                                                        break;
+                                                    }
+                                                    default:
+                                                        break;
+                                                }
+                                            }
+
+                                            break;
+                                        }
+                                        default:
+                                            break;
+                                    }
+
                                     break;
                                 }
                                 default: {
@@ -755,6 +796,30 @@ void body_to_html(
 
                         break;
                     }
+                    case ARTICLE_TOKEN_TYPE_BIBLE_HOVER: {
+                        ArticleToken hover_close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            ARTICLE_TOKEN_TYPE_BIBLE_HOVER,
+                        };
+
+                        ARRAY_PUSH(&tks, &hover_close_tk);
+
+                        ArticleToken reg_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                        };
+
+                        reg_open_tk.data.reg_text.start_line_idx = line_idx;
+                        reg_open_tk.data.reg_text.start_c_idx = current_open_tk->data.bible_hover.end_c_idx;
+                        reg_open_tk.data.reg_text.text = str_make(arena, "");
+
+                        current_open_tk_idx = tks.len;
+                        ARRAY_PUSH(&tks, &reg_open_tk);
+
+                        line_idx--;
+
+                        break;
+                    }
                     default: {
                         current_open_tk_idx = -1;
                         break;
@@ -884,10 +949,12 @@ void body_to_html(
                         }
 
                         for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                            string verse_key = str_make(arena, "%s_%d_%d",
-                                                        kBibleBookStrs[passage->book],
-                                                        passage->ch_v.chapter,
-                                                        current_verse
+                            string verse_key = str_make(
+                                arena,
+                                "%s_%d_%d",
+                                kBibleBookStrs[passage->book],
+                                passage->ch_v.chapter,
+                                current_verse
                             );
 
                             char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
