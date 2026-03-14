@@ -9,17 +9,15 @@
 
 #include "library.h"
 
-int main(int argc, char ** argv) {
-    for (int i = 0; i < 10; i++) {
-        article_init();
+int main(int argc, char **argv) {
+    article_init();
 
-        ArticleData data = article_parse("data/draft_1.xmd");
-        if (data.body_html) {
-            printf("%s\n", data.body_html);
-        }
-
-        article_free(&data);
-
-        article_uninit();
+    ArticleData data = article_parse("data/draft_1.xmd");
+    if (data.body_html) {
+        printf("%s\n", data.body_html);
     }
+
+    article_free(&data);
+
+    article_uninit();
 }

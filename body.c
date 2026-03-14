@@ -647,7 +647,7 @@ void body_to_html(
                                                         );
                                                         open_tk.data.bible_hover.end_c_idx = c_idx
                                                             + metablock_data.range.end_c_idx
-                                                            + (i64)strlen(kMetablockEndDelimiter);
+                                                            + (i64) strlen(kMetablockEndDelimiter);
 
                                                         new_tk = true;
 
@@ -971,6 +971,75 @@ void body_to_html(
                 }
 
                 str_append(out_html, "</div");
+
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_BIBLE_HOVER: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                str_append(out_html, "<span class=\"bible-hover\">");
+
+                const BiblePassages *passages = &current_tk->data.bible_hover.passages;
+                for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
+                    BiblePassage *passage = &passages->data[passage_idx];
+
+                    if (passage->book < BIBLE_BOOK_COUNT
+                        && passage->ch_v.chapter > 0) {
+                        string ref_str = bible_passage_ref_to_str(arena, *passage);
+
+                        str_append(out_html, "<span class=\"bible-hover-ref\">");
+                        str_append(out_html, "%s", ref_str.data);
+                        str_append(out_html, "</span>");
+
+                        str_append(out_html, "<span class=\"bible-hover-body hidden\">");
+
+                        if (passage->ch_v.start_verse > 0) {
+                            i32 start_verse = passage->ch_v.start_verse;
+                            i32 end_verse = passage->ch_v.end_verse;
+                            if (end_verse < start_verse) {
+                                end_verse = start_verse;
+                            }
+
+                            Arena tmp = arena_make(32 * (end_verse - start_verse + 1));
+
+                            for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
+                                string verse_key = str_make(
+                                    &tmp,
+                                    "%s_%d_%d",
+                                    kBibleBookStrs[passage->book],
+                                    passage->ch_v.chapter,
+                                    current_verse
+                                );
+
+                                char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+                                if (verse_val) {
+                                    str_append(out_html, "%s", verse_val);
+                                }
+                            }
+
+                            arena_free(&tmp);
+                        } else {
+                            string verse_key = str_make(
+                                arena,
+                                "%s_%d_%d",
+                                kBibleBookStrs[passage->book],
+                                passage->ch_v.chapter,
+                                1
+                            );
+
+                            char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+                            if (verse_val) {
+                                str_append(out_html, "%s", verse_val);
+                            }
+                        }
+
+                        str_append(out_html, "</span>");
+                    }
+                }
+
+                str_append(out_html, "</span>");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);

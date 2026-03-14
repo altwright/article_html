@@ -128,14 +128,11 @@ void bible_init(const char *lsb_csv_filepath) {
                 }
             }
 
-            string_view text_view = {
-                line->data + comma_idxs.data[2] + 1,
-            };
-            text_view.len = (line->data + line->len) - text_view.data;
-            if (text_view.len > 0) {
-                char* text_str = alt_calloc(text_view.len + 1, sizeof(char));
+            i64 text_len = line->len - comma_idxs.data[2] - 1;
+            if (text_len > 0) {
+                char* text_str = alt_calloc(text_len + 1, sizeof(char));
                 assert(text_str);
-                snprintf(text_str, text_view.len, "%s", text_view.data);
+                snprintf(text_str, text_len + 1, "%.*s", (i32)text_len, line->data + comma_idxs.data[2] + 1);
 
                 HASHMAP_PUT(&g_lsb_verse_map, &bible_key_str.data, &text_str);
             }
@@ -353,9 +350,13 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
         *c = (char)tolower(*c);
     }
 
-    str_append(&ref_str, "%s %d:%d", book_name.data, passage.ch_v.chapter, passage.ch_v.start_verse);
-    if (passage.ch_v.start_verse < passage.ch_v.end_verse) {
-        str_append(&ref_str, "-%d", passage.ch_v.end_verse);
+    str_append(&ref_str, "%s %d", book_name.data, passage.ch_v.chapter);
+
+    if (passage.ch_v.start_verse > 0) {
+        str_append(&ref_str, ":%d", passage.ch_v.start_verse);
+        if (passage.ch_v.start_verse < passage.ch_v.end_verse) {
+            str_append(&ref_str, "-%d", passage.ch_v.end_verse);
+        }
     }
 
     return ref_str;
