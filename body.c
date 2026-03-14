@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include "bible.h"
+#include "altcore/defer.h"
 
 typedef struct METABLOCK_RANGE_T {
     i64 start_c_idx, end_c_idx;
@@ -948,20 +949,21 @@ void body_to_html(
                             end_verse = start_verse;
                         }
 
+                        Arena tmp = arena_make(32 * (end_verse - start_verse + 1));
+
                         for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                            string verse_key = str_make(
-                                arena,
-                                "%s_%d_%d",
-                                kBibleBookStrs[passage->book],
+                            char *verse_val = bible_get_verse(
+                                passage->book,
                                 passage->ch_v.chapter,
                                 current_verse
                             );
 
-                            char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
                             if (verse_val) {
                                 str_append(out_html, "%s", verse_val);
                             }
                         }
+
+                        arena_free(&tmp);
 
                         str_append(out_html, "<p class=\"bible-block-verse-ref\">");
                         string ref_str = bible_passage_ref_to_str(arena, *passage);
@@ -1002,36 +1004,29 @@ void body_to_html(
                                 end_verse = start_verse;
                             }
 
-                            Arena tmp = arena_make(32 * (end_verse - start_verse + 1));
+                            Arena tmp = arena_make(512 + 32 * (end_verse - start_verse + 1));
+                            DEFER(arena_free(&tmp)) {
+                                for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
+                                    char *verse_val = bible_get_verse(
+                                        passage->book,
+                                        passage->ch_v.chapter,
+                                        current_verse
+                                    );
 
-                            for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                                string verse_key = str_make(
-                                    &tmp,
-                                    "%s_%d_%d",
-                                    kBibleBookStrs[passage->book],
-                                    passage->ch_v.chapter,
-                                    current_verse
-                                );
-
-                                char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
-                                if (verse_val) {
-                                    str_append(out_html, "%s", verse_val);
+                                    if (verse_val) {
+                                        string inline_verse_str = bible_verse_to_inline(&tmp, verse_val);
+                                        str_append(out_html, "%s", inline_verse_str.data);
+                                    }
                                 }
                             }
-
-                            arena_free(&tmp);
                         } else {
-                            string verse_key = str_make(
-                                arena,
-                                "%s_%d_%d",
-                                kBibleBookStrs[passage->book],
-                                passage->ch_v.chapter,
-                                1
-                            );
-
-                            char *verse_val = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+                            char *verse_val = bible_get_verse(passage->book, passage->ch_v.chapter, 1);
                             if (verse_val) {
-                                str_append(out_html, "%s", verse_val);
+                                Arena tmp = arena_make(512);
+                                DEFER(arena_free(&tmp)) {
+                                    string inline_verse_str = bible_verse_to_inline(&tmp, verse_val);
+                                    str_append(out_html, "%s", inline_verse_str.data);
+                                }
                             }
                         }
 

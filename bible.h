@@ -140,4 +140,8 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage);
 
 BibleSubkey bible_get_subkey(const string* subkey_str);
 
+char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
+
+string bible_verse_to_inline(Arena *arena, const char* verse);
+
 #endif //ARTICLE_HTML_BIBLE_H

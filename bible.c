@@ -34,7 +34,7 @@ const char *kBibleBookStrs[] = {
 #undef X
 };
 
-static const char* kBookNumStrs[] = {
+static const char *kBookNumStrs[] = {
     "FIRST",
     "SECOND",
     "THIRD",
@@ -130,9 +130,15 @@ void bible_init(const char *lsb_csv_filepath) {
 
             i64 text_len = line->len - comma_idxs.data[2] - 1;
             if (text_len > 0) {
-                char* text_str = alt_calloc(text_len + 1, sizeof(char));
+                char *text_str = alt_calloc(text_len + 1, sizeof(char));
                 assert(text_str);
-                snprintf(text_str, text_len + 1, "%.*s", (i32)text_len, line->data + comma_idxs.data[2] + 1);
+                snprintf(
+                    text_str,
+                    text_len + 1,
+                    "%.*s",
+                    (i32) text_len,
+                    line->data + (line->len - text_len)
+                );
 
                 HASHMAP_PUT(&g_lsb_verse_map, &bible_key_str.data, &text_str);
             }
@@ -241,7 +247,7 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
                         .book = book,
                     };
 
-                    passage.ch_v.chapter = (i32)strtol(ch_v_str->data, nullptr, 10);
+                    passage.ch_v.chapter = (i32) strtol(ch_v_str->data, nullptr, 10);
 
                     ARRAY_PUSH(&passages, &passage);
 
@@ -311,13 +317,13 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
         return ref_str;
     }
 
-    const char* book_str = kBibleBookStrs[passage.book];
-    const char* start_str = book_str;
-    const char* num_str = nullptr;
+    const char *book_str = kBibleBookStrs[passage.book];
+    const char *start_str = book_str;
+    const char *num_str = nullptr;
 
     i32 num_idx = 0;
     for (num_idx = 0; num_idx < STATIC_ARRAY_LEN(kBookNumStrs); num_idx++) {
-        char* substr = nullptr;
+        char *substr = nullptr;
         if (substr = strstr(start_str, kBookNumStrs[num_idx]),
             substr && (substr == start_str)) {
             start_str += strlen(kBookNumStrs[num_idx]);
@@ -347,7 +353,7 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
 
     for (i32 c_idx = 1; c_idx < book_name.len; c_idx++) {
         char *c = ARRAY_ELEM(&book_name, &c_idx);
-        *c = (char)tolower(*c);
+        *c = (char) tolower(*c);
     }
 
     str_append(&ref_str, "%s %d", book_name.data, passage.ch_v.chapter);
@@ -362,7 +368,7 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage) {
     return ref_str;
 }
 
-BibleSubkey bible_get_subkey(const string* subkey_str) {
+BibleSubkey bible_get_subkey(const string *subkey_str) {
     BibleSubkey bible_subkey = BIBLE_SUBKEY_COUNT;
 
     Arena arena = arena_make(32 * BIBLE_SUBKEY_COUNT);
@@ -390,4 +396,64 @@ BibleSubkey bible_get_subkey(const string* subkey_str) {
     arena_free(&arena);
 
     return bible_subkey;
+}
+
+char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
+    Arena tmp = arena_make(64);
+
+    string verse_key = str_make(
+        &tmp,
+        "%s_%d_%d",
+        kBibleBookStrs[book],
+        chapter,
+        verse
+    );
+
+    arena_free(&tmp);
+
+    char* verse_str = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+
+    return verse_str;
+}
+
+string bible_verse_to_inline(Arena *arena, const char* verse) {
+    string inline_html = str_make(arena, "%s", verse);
+
+    const char *opening_div_str = "<div ";
+    char *opening_div_start = strstr(
+        inline_html.data,
+        opening_div_str
+    );
+    assert(
+        opening_div_start
+        && opening_div_start == inline_html.data
+    );
+
+    str_replace_at(
+        &inline_html,
+        0,
+        (i64) strlen(opening_div_str),
+        "<span "
+    );
+
+    const char *closing_div_str = "</div>";
+    u64 closing_div_str_len = strlen(closing_div_str);
+    char *closing_div_start = strstr(
+        inline_html.data,
+        closing_div_str
+    );
+    i64 closing_div_start_idx = inline_html.len - (i64) closing_div_str_len;
+    assert(
+        closing_div_start
+        && closing_div_start == inline_html.data + closing_div_start_idx
+    );
+
+    str_replace_at(
+        &inline_html,
+        closing_div_start_idx,
+        (i64) closing_div_str_len,
+        "</span>"
+    );
+
+    return inline_html;
 }
