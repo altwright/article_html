@@ -142,6 +142,6 @@ BibleSubkey bible_get_subkey(const string* subkey_str);
 
 char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
 
-string bible_verse_to_inline(Arena *arena, const char* verse);
+string bible_verse_block_to_inline(Arena *arena, const char* verse);
 
 #endif //ARTICLE_HTML_BIBLE_H

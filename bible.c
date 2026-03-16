@@ -416,7 +416,7 @@ char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
     return verse_str;
 }
 
-string bible_verse_to_inline(Arena *arena, const char* verse) {
+string bible_verse_block_to_inline(Arena *arena, const char* verse) {
     string inline_html = str_make(arena, "%s", verse);
 
     const char *opening_div_str = "<div ";

@@ -1014,7 +1014,7 @@ void body_to_html(
                                     );
 
                                     if (verse_val) {
-                                        string inline_verse_str = bible_verse_to_inline(&tmp, verse_val);
+                                        string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
                                         str_append(out_html, "%s", inline_verse_str.data);
                                     }
                                 }
@@ -1024,7 +1024,7 @@ void body_to_html(
                             if (verse_val) {
                                 Arena tmp = arena_make(512);
                                 DEFER(arena_free(&tmp)) {
-                                    string inline_verse_str = bible_verse_to_inline(&tmp, verse_val);
+                                    string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
                                     str_append(out_html, "%s", inline_verse_str.data);
                                 }
                             }
