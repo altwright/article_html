@@ -28,6 +28,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(LABEL) \
     X(BIBLE_BLOCK) \
     X(BIBLE_HOVER) \
+    X(BIBLE_CITE) \
     X(COUNT)
 #endif
 
@@ -71,6 +72,8 @@ typedef struct BIBLE_HOWEVER_TOKEN_DATA_T {
     i64 end_c_idx;
 } BibleHoverTokenData;
 
+typedef BibleHoverTokenData BibleCiteTokenData;
+
 typedef enum TOKEN_PAREN_E {
 #ifndef X_TOKEN_PARENS
 #define X_TOKEN_PARENS \
@@ -101,6 +104,7 @@ typedef struct ARTICLE_TOKEN_T {
         LabelTokenData label;
         BibleBlockTokenData bible_block;
         BibleHoverTokenData bible_hover;
+        BibleCiteTokenData bible_cite;
     } data;
 } ArticleToken;
 
@@ -631,24 +635,34 @@ void body_to_html(
                                         case METABLOCK_KEY_BIBLE: {
                                             if (metablock_data.val_strs.len >= 3) {
                                                 const string *subkey_str = &metablock_data.val_strs.data[1];
-
-                                                switch (bible_get_subkey(subkey_str)) {
-                                                    case BIBLE_SUBKEY_HOVER: {
-                                                        open_tk.type = ARTICLE_TOKEN_TYPE_BIBLE_HOVER;
-
+                                                BibleSubkey subkey = bible_get_subkey(subkey_str);
+                                                switch (subkey) {
+                                                    case BIBLE_SUBKEY_HOVER:
+                                                    case BIBLE_SUBKEY_CITE: {
                                                         string verse_ref_str = metablock_join_val_strs(
                                                             arena,
                                                             &metablock_data.val_strs,
                                                             2
                                                         );
 
-                                                        open_tk.data.bible_hover.passages = bible_parse_ref(
+                                                        BiblePassages passages = bible_parse_ref(
                                                             arena,
                                                             &verse_ref_str
                                                         );
-                                                        open_tk.data.bible_hover.end_c_idx = c_idx
-                                                            + metablock_data.range.end_c_idx
-                                                            + (i64) strlen(kMetablockEndDelimiter);
+
+                                                        i64 end_c_idx = c_idx
+                                                                        + metablock_data.range.end_c_idx
+                                                                        + (i64) strlen(kMetablockEndDelimiter);
+
+                                                        if (subkey == BIBLE_SUBKEY_HOVER) {
+                                                            open_tk.type = ARTICLE_TOKEN_TYPE_BIBLE_HOVER;
+                                                            open_tk.data.bible_hover.passages = passages;
+                                                            open_tk.data.bible_hover.end_c_idx = end_c_idx;
+                                                        } else {
+                                                            open_tk.type = ARTICLE_TOKEN_TYPE_BIBLE_CITE;
+                                                            open_tk.data.bible_cite.passages = passages;
+                                                            open_tk.data.bible_cite.end_c_idx = end_c_idx;
+                                                        }
 
                                                         new_tk = true;
 
@@ -797,13 +811,14 @@ void body_to_html(
 
                         break;
                     }
-                    case ARTICLE_TOKEN_TYPE_BIBLE_HOVER: {
-                        ArticleToken hover_close_tk = {
+                    case ARTICLE_TOKEN_TYPE_BIBLE_HOVER:
+                    case ARTICLE_TOKEN_TYPE_BIBLE_CITE: {
+                        ArticleToken close_tk = {
                             TOKEN_PAREN_CLOSE,
-                            ARTICLE_TOKEN_TYPE_BIBLE_HOVER,
+                            current_open_tk->type,
                         };
 
-                        ARRAY_PUSH(&tks, &hover_close_tk);
+                        ARRAY_PUSH(&tks, &close_tk);
 
                         ArticleToken reg_open_tk = {
                             TOKEN_PAREN_OPEN,
@@ -811,7 +826,9 @@ void body_to_html(
                         };
 
                         reg_open_tk.data.reg_text.start_line_idx = line_idx;
-                        reg_open_tk.data.reg_text.start_c_idx = current_open_tk->data.bible_hover.end_c_idx;
+                        reg_open_tk.data.reg_text.start_c_idx = current_open_tk->type == ARTICLE_TOKEN_TYPE_BIBLE_HOVER
+                                                                    ? current_open_tk->data.bible_hover.end_c_idx
+                                                                    : current_open_tk->data.bible_cite.end_c_idx;
                         reg_open_tk.data.reg_text.text = str_make(arena, "");
 
                         current_open_tk_idx = tks.len;
@@ -984,53 +1001,43 @@ void body_to_html(
                 str_append(out_html, "<span class=\"bible-hover\">");
 
                 const BiblePassages *passages = &current_tk->data.bible_hover.passages;
-                for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
-                    BiblePassage *passage = &passages->data[passage_idx];
+                Arena tmp = arena_make(512 + 64 * passages->len);
+                DEFER(arena_free(&tmp)) {
+                    for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
+                        string hover_html = bible_passage_to_hover_ref_html(&tmp, passages->data[passage_idx]);
+                        str_append(out_html, "%s", hover_html.data);
 
-                    if (passage->book < BIBLE_BOOK_COUNT
-                        && passage->ch_v.chapter > 0) {
-                        string ref_str = bible_passage_ref_to_str(arena, *passage);
-
-                        str_append(out_html, "<span class=\"bible-hover-ref\">");
-                        str_append(out_html, "%s", ref_str.data);
-                        str_append(out_html, "</span>");
-
-                        str_append(out_html, "<span class=\"bible-hover-body hidden\">");
-
-                        if (passage->ch_v.start_verse > 0) {
-                            i32 start_verse = passage->ch_v.start_verse;
-                            i32 end_verse = passage->ch_v.end_verse;
-                            if (end_verse < start_verse) {
-                                end_verse = start_verse;
-                            }
-
-                            Arena tmp = arena_make(512 + 32 * (end_verse - start_verse + 1));
-                            DEFER(arena_free(&tmp)) {
-                                for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                                    char *verse_val = bible_get_verse(
-                                        passage->book,
-                                        passage->ch_v.chapter,
-                                        current_verse
-                                    );
-
-                                    if (verse_val) {
-                                        string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
-                                        str_append(out_html, "%s", inline_verse_str.data);
-                                    }
-                                }
-                            }
-                        } else {
-                            char *verse_val = bible_get_verse(passage->book, passage->ch_v.chapter, 1);
-                            if (verse_val) {
-                                Arena tmp = arena_make(512);
-                                DEFER(arena_free(&tmp)) {
-                                    string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
-                                    str_append(out_html, "%s", inline_verse_str.data);
-                                }
-                            }
+                        if (passage_idx < passages->len - 1) {
+                            str_append(out_html, ", ");
                         }
+                    }
+                }
 
-                        str_append(out_html, "</span>");
+                str_append(out_html, "</span>");
+
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_BIBLE_CITE: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                str_append(out_html, "<span class=\"bible-cite\">");
+                str_append(out_html, "<sup class=\"bible-cite-symbol\">*</sup>");
+                str_append(out_html, "<span class=\"bible-cite-refs hidden\"");
+
+                const BiblePassages* passages = &current_tk->data.bible_cite.passages;
+
+                Arena tmp = arena_make(512 * 64 * passages->len);
+                DEFER(arena_free(&tmp)) {
+                    for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
+                        string hover_html = bible_passage_to_hover_ref_html(&tmp, passages->data[passage_idx]);
+
+                        str_append(out_html, "%s", hover_html.data);
+
+                        if (passage_idx < passages->len - 1) {
+                            str_append(out_html, ", ");
+                        }
                     }
                 }
 

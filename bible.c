@@ -10,6 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#include "altcore/defer.h"
 #include "bibtool_wrapper/libs/altcore/memory.h"
 
 const char *kBibleSubkeyStrs[] = {
@@ -411,49 +412,91 @@ char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
 
     arena_free(&tmp);
 
-    char* verse_str = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+    char *verse_str = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
 
     return verse_str;
 }
 
-string bible_verse_block_to_inline(Arena *arena, const char* verse) {
+string bible_verse_block_to_inline(Arena *arena, const char *verse) {
     string inline_html = str_make(arena, "%s", verse);
 
-    const char *opening_div_str = "<div ";
-    char *opening_div_start = strstr(
-        inline_html.data,
-        opening_div_str
-    );
-    assert(
-        opening_div_start
-        && opening_div_start == inline_html.data
-    );
-
-    str_replace_at(
-        &inline_html,
-        0,
-        (i64) strlen(opening_div_str),
-        "<span "
-    );
+    const char *opening_div_str = "<div";
+    i64 opening_div_str_len = (i64) strlen(opening_div_str);
+    char *opening_div_start = nullptr;
+    while (opening_div_start = strstr(inline_html.data, opening_div_str), opening_div_start) {
+        i64 opening_div_start_idx = opening_div_start - inline_html.data;
+        str_replace_at(
+             &inline_html,
+             opening_div_start_idx,
+             opening_div_str_len,
+             "<span"
+        );
+    }
 
     const char *closing_div_str = "</div>";
-    u64 closing_div_str_len = strlen(closing_div_str);
-    char *closing_div_start = strstr(
-        inline_html.data,
-        closing_div_str
-    );
-    i64 closing_div_start_idx = inline_html.len - (i64) closing_div_str_len;
-    assert(
-        closing_div_start
-        && closing_div_start == inline_html.data + closing_div_start_idx
-    );
-
-    str_replace_at(
-        &inline_html,
-        closing_div_start_idx,
-        (i64) closing_div_str_len,
-        "</span>"
-    );
+    i64 closing_div_str_len = (i64)strlen(closing_div_str);
+    char *closing_div_start = nullptr;
+    while (closing_div_start = strstr(inline_html.data, closing_div_str), closing_div_start) {
+        i64 closing_div_start_idx = closing_div_start - inline_html.data;
+        str_replace_at(
+            &inline_html,
+            closing_div_start_idx,
+            closing_div_str_len,
+            "</span>"
+        );
+    }
 
     return inline_html;
+}
+
+string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage) {
+    string out_html = str_make(arena, "");
+
+    if (passage.book < BIBLE_BOOK_COUNT
+        && passage.ch_v.chapter > 0) {
+        string ref_str = bible_passage_ref_to_str(arena, passage);
+
+        str_append(&out_html, "<span class=\"bible-hover-ref\">");
+        str_append(&out_html, "%s", ref_str.data);
+        str_append(&out_html, "</span>");
+
+        str_append(&out_html, "<span class=\"bible-hover-body hidden\">");
+
+        if (passage.ch_v.start_verse > 0) {
+            i32 start_verse = passage.ch_v.start_verse;
+            i32 end_verse = passage.ch_v.end_verse;
+            if (end_verse < start_verse) {
+                end_verse = start_verse;
+            }
+
+            Arena tmp = arena_make(512 + 32 * (end_verse - start_verse + 1));
+            DEFER(arena_free(&tmp)) {
+                for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
+                    char *verse_val = bible_get_verse(
+                        passage.book,
+                        passage.ch_v.chapter,
+                        current_verse
+                    );
+
+                    if (verse_val) {
+                        string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
+                        str_append(&out_html, "%s", inline_verse_str.data);
+                    }
+                }
+            }
+        } else {
+            char *verse_val = bible_get_verse(passage.book, passage.ch_v.chapter, 1);
+            if (verse_val) {
+                Arena tmp = arena_make(512);
+                DEFER(arena_free(&tmp)) {
+                    string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
+                    str_append(&out_html, "%s", inline_verse_str.data);
+                }
+            }
+        }
+
+        str_append(&out_html, "</span>");
+    }
+
+    return out_html;
 }
