@@ -78,6 +78,8 @@ typedef struct BIBLE_HOVER_TOKEN_DATA_T {
 typedef BibleHoverTokenData BibleCiteTokenData;
 
 typedef struct CITE_TOKEN_DATA_T {
+    strings infos;
+    i64 end_c_idx;
 } CiteTokenData;
 
 typedef enum TOKEN_PAREN_E {
@@ -111,6 +113,7 @@ typedef struct ARTICLE_TOKEN_T {
         BibleBlockTokenData bible_block;
         BibleHoverTokenData bible_hover;
         BibleCiteTokenData bible_cite;
+        CiteTokenData cite;
     } data;
 } ArticleToken;
 
@@ -360,7 +363,7 @@ static string metablock_join_val_strs(Arena *arena, const string_views *val_strs
     string ref_str = str_make(arena, "");
 
     for (
-        i64 val_str_idx = 2;
+        i64 val_str_idx = start_idx;
         val_str_idx < val_strs->len;
         val_str_idx++
     ) {
@@ -541,12 +544,6 @@ void body_to_html(
                                 }
                                 break;
                             }
-                            case METABLOCK_KEY_CITE: {
-
-
-
-                                break;
-                            }
                             default:
                                 break;
                         }
@@ -683,6 +680,87 @@ void body_to_html(
                                                         break;
                                                 }
                                             }
+
+                                            break;
+                                        }
+                                        case METABLOCK_KEY_CITE: {
+                                            if (metablock_data.val_strs.len < 2) {
+                                                break;
+                                            }
+
+                                            string cite_infos_str = metablock_join_val_strs(
+                                                arena,
+                                                &metablock_data.val_strs,
+                                                1
+                                            );
+
+                                            string_views cite_infos = {arena};
+                                            ARRAY_MAKE(&cite_infos);
+
+                                            i64 cite_start_c_idx = 0;
+
+                                            bool info_bracket_open = false;
+
+                                            for (i64 cite_c_idx = 0; cite_c_idx < cite_infos_str.len; cite_c_idx++) {
+                                                char cite_c = cite_infos_str.data[cite_c_idx];
+
+                                                switch (cite_c) {
+                                                    case ' ': {
+                                                        if (!info_bracket_open) {
+                                                            i64 end_cite_info_c_idx = cite_c_idx;
+
+                                                            i64 prior_cite_c_idx = cite_c_idx - 1;
+                                                            if (prior_cite_c_idx < 0) {
+                                                                break;
+                                                            }
+
+                                                            char prior_cite_c = cite_infos_str.data[prior_cite_c_idx];
+                                                            if (prior_cite_c_idx == ',') {
+                                                                end_cite_info_c_idx = prior_cite_c_idx;
+                                                            }
+
+                                                            string_view cite_info = {
+                                                                cite_infos_str.data + cite_start_c_idx,
+                                                                end_cite_info_c_idx - cite_start_c_idx,
+                                                            };
+
+                                                            ARRAY_PUSH(&cite_infos, &cite_info);
+
+                                                            cite_start_c_idx = cite_c_idx + 1;
+                                                        }
+                                                        break;
+                                                    }
+                                                    case '[': {
+                                                        info_bracket_open = true;
+                                                        break;
+                                                    }
+                                                    case ']': {
+                                                        info_bracket_open = false;
+                                                        break;
+                                                    }
+                                                    default:
+                                                        break;
+                                                }
+                                            }
+
+                                            string_view final_cite_info = {
+                                                cite_infos_str.data + cite_start_c_idx,
+                                                cite_infos_str.len - cite_start_c_idx,
+                                            };
+
+                                            ARRAY_PUSH(&cite_infos, &final_cite_info);
+
+                                            CiteTokenData cite_data = {
+                                                .infos = str_views_to_strs(arena, &cite_infos),
+                                                .end_c_idx = c_idx
+                                                             + metablock_data.range.end_c_idx
+                                                             + (i64) strlen(kMetablockEndDelimiter),
+                                            };
+
+                                            open_tk.type = ARTICLE_TOKEN_TYPE_CITE;
+                                            open_tk.data.cite = cite_data;
+
+                                            new_tk = true;
 
                                             break;
                                         }
@@ -840,6 +918,30 @@ void body_to_html(
                         reg_open_tk.data.reg_text.start_c_idx = current_open_tk->type == ARTICLE_TOKEN_TYPE_BIBLE_HOVER
                                                                     ? current_open_tk->data.bible_hover.end_c_idx
                                                                     : current_open_tk->data.bible_cite.end_c_idx;
+                        reg_open_tk.data.reg_text.text = str_make(arena, "");
+
+                        current_open_tk_idx = tks.len;
+                        ARRAY_PUSH(&tks, &reg_open_tk);
+
+                        line_idx--;
+
+                        break;
+                    }
+                    case ARTICLE_TOKEN_TYPE_CITE: {
+                        ArticleToken close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            ARTICLE_TOKEN_TYPE_CITE,
+                        };
+
+                        ARRAY_PUSH(&tks, &close_tk);
+
+                        ArticleToken reg_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                        };
+
+                        reg_open_tk.data.reg_text.start_line_idx = line_idx;
+                        reg_open_tk.data.reg_text.start_c_idx = current_open_tk->data.cite.end_c_idx;
                         reg_open_tk.data.reg_text.text = str_make(arena, "");
 
                         current_open_tk_idx = tks.len;
