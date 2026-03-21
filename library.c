@@ -7,6 +7,8 @@
 #include <altcore/arenas.h>
 #include <altcore/strings.h>
 #include <altcore/hashmap.h>
+#include <bibtool_wrapper/library.h>
+#include <cwalk.h>
 
 #include "bible.h"
 #include "body.h"
@@ -20,6 +22,8 @@ void article_init() {
     if (!g_initialized) {
         alt_init(kMallocInitialCapacity);
 
+        bib_init("article_html");
+
         bible_init("./data/lsb.csv");
 
         g_initialized = true;
@@ -29,6 +33,8 @@ void article_init() {
 void article_uninit() {
     if (g_initialized) {
         bible_uninit();
+
+        bib_uninit();
 
         alt_uninit();
 
@@ -67,7 +73,12 @@ ArticleData article_parse(const char *filepath) {
         file_buffer.data[file_size] = '\0';
     }
 
-    strings file_lines = str_split(&tmp, &file_buffer, "\n");
+    string_view file_view = {
+        file_buffer.data,
+        file_buffer.len
+    };
+
+    string_views file_lines = str_split(&tmp, &file_view, "\n");
 
     MetadataMap metadata_map = {HASHMAP_TYPE_STR_KEY};
     string default_str = {};
@@ -77,11 +88,34 @@ ArticleData article_parse(const char *filepath) {
     if (start_body_line_idx >= 0) {
         string body_html = str_make(&tmp, "");
 
-        body_to_html(&tmp, &metadata_map, &file_lines, start_body_line_idx, &body_html);
+        bool bib_db_opened = false;
+        string rel_bibtex_filepath = HASHMAP_GET_VAL(&metadata_map, &kMetadataRefsKey);
+        if (!ARRAY_EMPTY(&rel_bibtex_filepath)
+            && cwk_path_is_relative(rel_bibtex_filepath.data)) {
+            u64 dirname_len = 0;
+            cwk_path_get_dirname(filepath, &dirname_len);
+
+            string dirname = str_make(&tmp, "%.*s", dirname_len, filepath);
+            u64 path_len = cwk_path_join(dirname.data, rel_bibtex_filepath.data, nullptr, 0);
+            assert(path_len > 0);
+
+            string path = {&tmp, (i64) path_len, (i64) path_len + 1};
+            ARRAY_MAKE(&path);
+
+            cwk_path_join(dirname.data, rel_bibtex_filepath.data, path.data, path.len);
+
+            bib_db_opened = bib_open_db(path.data);
+        }
+
+        body_to_html(&tmp, &metadata_map, bib_db_opened, &file_lines, start_body_line_idx, &body_html);
 
         data.body_html = calloc(body_html.len + 1, sizeof(char));
         assert(data.body_html);
         memcpy(data.body_html, body_html.data, body_html.len);
+
+        if (bib_db_opened) {
+            bib_close_db();
+        }
     }
 
     HASHMAP_FREE(&metadata_map);

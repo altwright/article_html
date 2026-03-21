@@ -10,3 +10,6 @@
 [submodule "libs/curl"]
 	path = libs/curl
 	url = https://github.com/curl/curl.git
+[submodule "libs/cwalk"]
+	path = libs/cwalk
+	url = git@github.com:likle/cwalk.git

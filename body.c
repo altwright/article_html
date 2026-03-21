@@ -6,7 +6,9 @@
 
 #include <assert.h>
 #include "bible.h"
-#include "altcore/defer.h"
+#include <altcore/defer.h>
+#include <bibtool_wrapper/library.h>
+#include <cwalk.h>
 
 typedef struct METABLOCK_RANGE_T {
     i64 start_c_idx, end_c_idx;
@@ -29,6 +31,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(BIBLE_BLOCK) \
     X(BIBLE_HOVER) \
     X(BIBLE_CITE) \
+    X(CITE) \
     X(COUNT)
 #endif
 
@@ -67,12 +70,15 @@ typedef struct BIBLE_BLOCK_TOKEN_DATA_T {
     BiblePassages passages;
 } BibleBlockTokenData;
 
-typedef struct BIBLE_HOWEVER_TOKEN_DATA_T {
+typedef struct BIBLE_HOVER_TOKEN_DATA_T {
     BiblePassages passages;
     i64 end_c_idx;
 } BibleHoverTokenData;
 
 typedef BibleHoverTokenData BibleCiteTokenData;
+
+typedef struct CITE_TOKEN_DATA_T {
+} CiteTokenData;
 
 typedef enum TOKEN_PAREN_E {
 #ifndef X_TOKEN_PARENS
@@ -122,6 +128,7 @@ typedef enum METABLOCK_KEY_E : i32 {
 #define X_METABLOCK_KEYS \
     X(LABEL) \
     X(BIBLE) \
+    X(CITE) \
     X(COUNT)
 #endif
 #ifndef X
@@ -150,7 +157,7 @@ static MetablockRange metablock_find_range(Arena *arena, const string_view *str_
 
     const i64 arena_start_offset = arena->offset;
 
-    string str = str_view_make(arena, str_view);
+    string str = str_make_view(arena, str_view);
 
     u64 delim_total_len = strlen(kMetablockStartDelimiter) + strlen(kMetablockEndDelimiter);
 
@@ -202,11 +209,9 @@ static bool label_get_metablock(
 
     string_view contents = {start_delim + start_delim_len, (end_delim) - (start_delim + start_delim_len)};
 
-    str_view_strip(&contents);
+    str_strip(&contents);
 
-    string content_str = str_view_make(arena, &contents);
-
-    strings terms = str_split(arena, &content_str, " ");
+    string_views terms = str_split(arena, &contents, " ");
 
     if (terms.len < 2) {
         return false;
@@ -222,7 +227,7 @@ static bool label_get_metablock(
         return false;
     }
 
-    out_label_tk->name = terms.data[1];
+    out_label_tk->name = str_make_view(arena, &terms.data[1]);
 
     return true;
 }
@@ -312,7 +317,7 @@ static i64 find_closing_tk_idx(const ArticleTokens *tks, i64 open_tk_idx) {
 typedef struct METABLOCK_DATA_T {
     MetablockRange range;
     MetablockKey key;
-    strings val_strs;
+    string_views val_strs;
 } MetablockData;
 
 static MetablockData metablock_get_data(Arena *arena, const string_view *line_view) {
@@ -328,13 +333,12 @@ static MetablockData metablock_get_data(Arena *arena, const string_view *line_vi
             metablock_data.range.end_c_idx - metablock_data.range.start_c_idx
         };
 
-        str_view_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
-        str_view_strip(&metablock_view);
+        str_advance(&metablock_view, (i64) strlen(kMetablockStartDelimiter));
+        str_strip(&metablock_view);
 
-        str_view_strip(&metablock_view);
-        string metablock_content_str = str_view_make(arena, &metablock_view);
-        metablock_data.val_strs = str_split(arena, &metablock_content_str, " ");
-        const string *key_str = &metablock_data.val_strs.data[0];
+        str_strip(&metablock_view);
+        metablock_data.val_strs = str_split(arena, &metablock_view, " ");
+        const string_view *key_str = &metablock_data.val_strs.data[0];
 
         for (i32 key_idx = 0; key_idx < METABLOCK_KEY_COUNT; key_idx++) {
             string current_key_str = str_make(arena, "%s", kMetablockKeyStrs[key_idx]);
@@ -350,7 +354,7 @@ static MetablockData metablock_get_data(Arena *arena, const string_view *line_vi
     return metablock_data;
 }
 
-static string metablock_join_val_strs(Arena *arena, const strings *val_strs, i64 start_idx) {
+static string metablock_join_val_strs(Arena *arena, const string_views *val_strs, i64 start_idx) {
     assert(start_idx < val_strs->len);
 
     string ref_str = str_make(arena, "");
@@ -360,7 +364,7 @@ static string metablock_join_val_strs(Arena *arena, const strings *val_strs, i64
         val_str_idx < val_strs->len;
         val_str_idx++
     ) {
-        str_append(&ref_str, "%s", val_strs->data[val_str_idx].data);
+        str_append(&ref_str, "%.*s", val_strs->data[val_str_idx].len, val_strs->data[val_str_idx].data);
 
         if (val_str_idx < val_strs->len - 1) {
             str_append(&ref_str, " ");
@@ -372,8 +376,9 @@ static string metablock_join_val_strs(Arena *arena, const strings *val_strs, i64
 
 void body_to_html(
     Arena *arena,
-    const MetadataMap *metadata,
-    const strings *file_lines,
+    MetadataMap *metadata,
+    bool bib_db_opened,
+    const string_views *file_lines,
     i64 body_start_line_idx,
     string *out_html
 ) {
@@ -391,12 +396,12 @@ void body_to_html(
     i64 current_open_tk_idx = -1;
 
     for (i64 line_idx = body_start_line_idx; line_idx < file_lines->len; line_idx++) {
-        const string *line = &file_lines->data[line_idx];
+        const string_view *line = &file_lines->data[line_idx];
 
         string_view line_view = {line->data, line->len};
 
         if (current_open_tk_idx < 0) {
-            str_view_strip(&line_view);
+            str_strip(&line_view);
 
             if (line_view.len > 0) {
                 switch (line_view.data[0]) {
@@ -441,9 +446,9 @@ void body_to_html(
                             }
                         }
 
-                        str_view_advance(&line_view, text_start_idx);
-                        str_view_strip(&line_view);
-                        heading_open_tk.data.heading.text = str_view_make(arena, &line_view);
+                        str_advance(&line_view, text_start_idx);
+                        str_strip(&line_view);
+                        heading_open_tk.data.heading.text = str_make_view(arena, &line_view);
                         ARRAY_PUSH(&tks, &heading_open_tk);
 
                         if (label_present) {
@@ -483,7 +488,7 @@ void body_to_html(
                         switch (metablock_data.key) {
                             case METABLOCK_KEY_BIBLE: {
                                 if (metablock_data.val_strs.len >= 3) {
-                                    const string *subkey_str = &metablock_data.val_strs.data[1];
+                                    const string_view *subkey_str = &metablock_data.val_strs.data[1];
 
                                     switch (bible_get_subkey(subkey_str)) {
                                         case BIBLE_SUBKEY_BLOCK: {
@@ -534,6 +539,12 @@ void body_to_html(
                                             break;
                                     }
                                 }
+                                break;
+                            }
+                            case METABLOCK_KEY_CITE: {
+
+
+
                                 break;
                             }
                             default:
@@ -634,7 +645,7 @@ void body_to_html(
                                     switch (metablock_data.key) {
                                         case METABLOCK_KEY_BIBLE: {
                                             if (metablock_data.val_strs.len >= 3) {
-                                                const string *subkey_str = &metablock_data.val_strs.data[1];
+                                                const string_view *subkey_str = &metablock_data.val_strs.data[1];
                                                 BibleSubkey subkey = bible_get_subkey(subkey_str);
                                                 switch (subkey) {
                                                     case BIBLE_SUBKEY_HOVER:
@@ -1026,7 +1037,7 @@ void body_to_html(
                 str_append(out_html, "<sup class=\"bible-cite-symbol\">*</sup>");
                 str_append(out_html, "<span class=\"bible-cite-refs hidden\"");
 
-                const BiblePassages* passages = &current_tk->data.bible_cite.passages;
+                const BiblePassages *passages = &current_tk->data.bible_cite.passages;
 
                 Arena tmp = arena_make(512 * 64 * passages->len);
                 DEFER(arena_free(&tmp)) {

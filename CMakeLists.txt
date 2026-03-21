@@ -19,6 +19,7 @@ add_executable(article_html_test
 
 add_subdirectory(libs/altcore)
 add_subdirectory(libs/bibtool_wrapper)
+add_subdirectory(libs/cwalk)
 
 target_include_directories(article_html PRIVATE
         libs/
@@ -27,6 +28,7 @@ target_include_directories(article_html PRIVATE
 target_link_libraries(article_html PRIVATE
         altcore
         bibtool_wrapper
+        cwalk
 )
 
 target_include_directories(article_html_test PRIVATE
@@ -37,5 +39,5 @@ target_link_libraries(article_html_test PRIVATE
         article_html
 )
 
-#target_compile_options(article_html_test PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer" "-g")
-#target_link_options(article_html_test PRIVATE "-fsanitize=address")
+# target_compile_options(article_html_test PRIVATE "-fsanitize=address" "-fno-omit-frame-pointer" "-g")
+# target_link_options(article_html_test PRIVATE "-fsanitize=address")

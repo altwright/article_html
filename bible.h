@@ -138,7 +138,7 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref);
 
 string bible_passage_ref_to_str(Arena *arena, BiblePassage passage);
 
-BibleSubkey bible_get_subkey(const string* subkey_str);
+BibleSubkey bible_get_subkey(const string_view* subkey_str);
 
 char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
 

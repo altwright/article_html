@@ -4,10 +4,12 @@
 
 #include "metadata.h"
 
+const char *kMetadataRefsKey = "refs";
+
 static const char *kMetadataDelimiter = "---";
 static const char *kMetadataFieldAssignDelimiter = "=";
 
-i64 metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map) {
+i64 metadata_get(Arena *arena, const string_views *file_lines, MetadataMap *out_map) {
     i64 end_metadata_line_idx = -1;
 
     i32 meta_delim_count = 0;
@@ -29,11 +31,11 @@ i64 metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map) 
                         (line->data + line->len + 1) - (assign_delim + delim_len)
                     };
 
-                    str_view_strip(&key);
-                    str_view_strip(&val);
+                    str_strip(&key);
+                    str_strip(&val);
 
-                    string key_str = str_view_make(arena, &key);
-                    string val_str = str_view_make(arena, &val);
+                    string key_str = str_make_view(arena, &key);
+                    string val_str = str_make_view(arena, &val);
 
                     HASHMAP_PUT(out_map, &key_str.data, &val_str);
                 }

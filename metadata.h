@@ -12,6 +12,8 @@ typedef struct METADATA_MAP_T {
     HASHMAP_FIELDS(const char*, string)
 } MetadataMap;
 
-i64 metadata_get(Arena *arena, const strings *file_lines, MetadataMap *out_map);
+extern const char *kMetadataRefsKey;
+
+i64 metadata_get(Arena *arena, const string_views *file_lines, MetadataMap *out_map);
 
 #endif //ARTICLE_HTML_METADATA_H

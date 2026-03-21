@@ -10,8 +10,9 @@
 
 void body_to_html(
     Arena *arena,
-    const MetadataMap *metadata,
-    const strings *file_lines,
+    MetadataMap *metadata,
+    bool bib_db_opened,
+    const string_views *file_lines,
     i64 body_start_line_idx,
     string *out_html
 );
