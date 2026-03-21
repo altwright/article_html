@@ -198,9 +198,9 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
 
         string book_str = str_make(arena, "");
         if (book_num_str) {
-            str_append(&book_str, "%s_" SV_FMT, book_num_str, SV_FMT_DATA(&ref_vals.data[ref_val_idx]));
+            str_append(&book_str, "%s_" SV_FMT, book_num_str, SV_DATA(&ref_vals.data[ref_val_idx]));
         } else {
-            str_append(&book_str, SV_FMT, SV_FMT_DATA(&ref_vals.data[ref_val_idx]));
+            str_append(&book_str, SV_FMT, SV_DATA(&ref_vals.data[ref_val_idx]));
         }
 
         str_to_upper(&book_str);
