@@ -102,7 +102,7 @@ ArticleData article_parse(const char *filepath) {
             string path = {&tmp, (i64) path_len, (i64) path_len + 1};
             ARRAY_MAKE(&path);
 
-            cwk_path_join(dirname.data, rel_bibtex_filepath.data, path.data, path.len);
+            cwk_path_join(dirname.data, rel_bibtex_filepath.data, path.data, path.cap);
 
             bib_db_opened = bib_open_db(path.data);
         }

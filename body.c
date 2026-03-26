@@ -78,7 +78,7 @@ typedef struct BIBLE_HOVER_TOKEN_DATA_T {
 typedef BibleHoverTokenData BibleCiteTokenData;
 
 typedef struct CITE_TOKEN_DATA_T {
-    strings infos;
+    string_views key_sections;
     i64 end_c_idx;
 } CiteTokenData;
 
@@ -125,6 +125,17 @@ typedef struct LABELS_MAP_T {
     HASHMAP_FIELDS(const char*, bool)
 } LabelsMap;
 
+typedef struct CITE_KEY_SEEN_MAP_T {
+    HASHMAP_FIELDS(const char*, bool);
+} CiteKeySeenMap;
+
+typedef struct CITE_KEY_INFO_INDEX_MAP_T {
+    HASHMAP_FIELDS(const char*, i64)
+} CiteKeyInfoIndexMap;
+
+typedef struct CITE_STRINGS_T {
+    ARRAY_FIELDS(char*)
+} MallocStrings;
 
 typedef enum METABLOCK_KEY_E : i32 {
 #ifndef X_METABLOCK_KEYS
@@ -751,7 +762,7 @@ void body_to_html(
                                             ARRAY_PUSH(&cite_infos, &final_cite_info);
 
                                             CiteTokenData cite_data = {
-                                                .infos = str_views_to_strs(arena, &cite_infos),
+                                                .key_sections = cite_infos,
                                                 .end_c_idx = c_idx
                                                              + metablock_data.range.end_c_idx
                                                              + (i64) strlen(kMetablockEndDelimiter),
@@ -1007,6 +1018,17 @@ void body_to_html(
         current_open_tk_idx = find_parent_open_tk_idx(&tks, current_open_tk_idx);
     }
 
+    CiteKeySeenMap cite_keys_seen = {HASHMAP_TYPE_STR_KEY};
+    bool default_cite_keys_unseen = false;
+    HASHMAP_MAKE(&cite_keys_seen, &default_cite_keys_unseen);
+
+    CiteKeyInfoIndexMap unique_cite_entry_idxs = {HASHMAP_TYPE_STR_KEY};
+    i64 default_cite_key_info_idx = -1;
+    HASHMAP_MAKE(&unique_cite_entry_idxs, &default_cite_key_info_idx);
+
+    MallocStrings cite_strs = {arena};
+    ARRAY_MAKE(&cite_strs);
+
     i64 current_tk_idx = 0;
 
     while (current_tk_idx >= 0 && current_tk_idx < tks.len) {
@@ -1160,12 +1182,134 @@ void body_to_html(
                 assert(current_tk_idx >= 0);
                 break;
             }
+            case ARTICLE_TOKEN_TYPE_CITE: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                assert(bib_db_opened);
+
+                ARRAY_FOR(cite_key_section_str, &current_tk->data.cite.key_sections) {
+                    i64 open_bracket_idx = -1, close_bracket_idx = -1;
+
+                    for (i64 c_idx = 0; c_idx < cite_key_section_str->len; c_idx++) {
+                        switch (cite_key_section_str->data[c_idx]) {
+                            case '[': {
+                                open_bracket_idx = c_idx;
+                                break;
+                            }
+                            case ']': {
+                                close_bracket_idx = c_idx;
+                                break;
+                            }
+                            default:
+                                break;
+                        }
+                    }
+
+                    if (close_bracket_idx < open_bracket_idx) {
+                        continue;
+                    }
+
+                    string cite_key_str = str_make(arena, "");
+                    string cite_section_str = str_make(arena, "");
+
+                    if (open_bracket_idx > 0 && open_bracket_idx < close_bracket_idx - 1) {
+                        string_view key_view = {
+                            cite_key_section_str->data,
+                            open_bracket_idx
+                        };
+
+                        string_view section_view = {
+                            cite_key_section_str->data + open_bracket_idx + 1,
+                            close_bracket_idx - open_bracket_idx - 1,
+                        };
+
+                        str_append(&cite_key_str, SV_FMT, SV_DATA(&key_view));
+                        str_append(&cite_section_str, SV_FMT, SV_DATA(&section_view));
+                    } else {
+                        str_append(&cite_key_str, SV_FMT, SV_DATA(cite_key_section_str));
+                    }
+
+                    char *note = nullptr;
+
+                    bool key_seen = HASHMAP_GET_VAL(&cite_keys_seen, &cite_key_str.data);
+                    i64 unique_cite_idx = -1;
+
+                    if (key_seen) {
+                        unique_cite_idx = HASHMAP_GET_VAL(&unique_cite_entry_idxs, &cite_key_section_str->data);
+
+                        if (unique_cite_idx < 0) {
+                            note = bib_create_short_note_html(
+                                cite_key_str.data,
+                                CITE_STYLE_CHICAGO,
+                                !str_empty(&cite_section_str) ? cite_section_str.data : nullptr
+                            );
+
+                            unique_cite_idx = cite_strs.len;
+                            HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->data, &unique_cite_idx);
+
+                            ARRAY_PUSH(&cite_strs, &note);
+                        } else {
+                            note = cite_strs.data[unique_cite_idx];
+                        }
+                    } else {
+                        bool is_seen = true;
+                        HASHMAP_PUT(&cite_keys_seen, &cite_key_str.data, &is_seen);
+
+                        note = bib_create_note_html(
+                            cite_key_str.data,
+                            CITE_STYLE_CHICAGO,
+                            !str_empty(&cite_section_str) ? cite_section_str.data : nullptr
+                        );
+
+                        unique_cite_idx = cite_strs.len;
+                        HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->data, &unique_cite_idx);
+
+                        ARRAY_PUSH(&cite_strs, &note);
+                    }
+
+                    assert(note);
+
+                    // TODO: Add hyperscript to push this element on the history stack
+                    str_append(
+                        out_html,
+                        "<sup class=\"cite-footnote-index\">"
+                        "<a href=\"#cite-footnote-%d\">%d</a>"
+                        "</sup>",
+                        unique_cite_idx,
+                        unique_cite_idx
+                    );
+                }
+
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
             default:
                 break;
         }
 
         current_tk_idx++;
     }
+
+    if (!ARRAY_EMPTY(&cite_strs)) {
+        str_append(out_html, "<ol class=\"cite-footnotes\">");
+
+        for (i64 cite_idx = 0; cite_idx < cite_strs.len; cite_idx++) {
+            str_append(out_html, "<li id=\"cite-footnote-%d\">", cite_idx);
+            str_append(out_html, "%s", cite_strs.data[cite_idx]);
+            str_append(out_html, "</li>");
+        }
+
+        str_append(out_html, "</ol>");
+    }
+
+    ARRAY_FOR(cite_str, &cite_strs) {
+        free(*cite_str);
+    }
+
+    HASHMAP_FREE(&unique_cite_entry_idxs);
+
+    HASHMAP_FREE(&cite_keys_seen);
 
     HASHMAP_FREE(&existing_labels);
 }
