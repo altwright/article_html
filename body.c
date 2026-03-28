@@ -166,6 +166,14 @@ static const char *kMetablockStartDelimiter = "{{";
 static const char *kMetablockEndDelimiter = "}}";
 static const char *kMetablockLabelKey = "label";
 
+static int SortMallocStrings(const void* left, const void* right) {
+    u64 left_count = strlen(left);
+    u64 right_count = strlen(right);
+    u64 min_count = left_count < right_count ? left_count : right_count;
+
+    return strncmp(left, right, min_count);
+}
+
 static MetablockRange metablock_find_range(Arena *arena, const string_view *str_view) {
     MetablockRange range = {-1, -1};
 
@@ -1158,7 +1166,7 @@ void body_to_html(
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
                 str_append(out_html, "<span class=\"bible-cite\">");
-                str_append(out_html, "<sup class=\"bible-cite-symbol\">*</sup>");
+                str_append(out_html, "<sup class=\"bible-cite-symbol\">\u271d</sup>");
                 str_append(out_html, "<span class=\"bible-cite-refs hidden\"");
 
                 const BiblePassages *passages = &current_tk->data.bible_cite.passages;
@@ -1267,14 +1275,16 @@ void body_to_html(
                         ARRAY_PUSH(&cite_strs, &note);
                     }
 
+                    assert(unique_cite_idx >= 0);
                     assert(note);
 
                     // TODO: Add hyperscript to push this element on the history stack
                     str_append(
                         out_html,
-                        "<sup class=\"cite-footnote-index\">"
+                        "<sup id=\"cite-superscript-%d\" class=\"cite-footnote-index\">"
                         "<a href=\"#cite-footnote-%d\">%d</a>"
                         "</sup>",
+                        unique_cite_idx,
                         unique_cite_idx,
                         unique_cite_idx
                     );
@@ -1301,6 +1311,38 @@ void body_to_html(
         }
 
         str_append(out_html, "</ol>");
+    }
+
+    i64 cite_keys_seen_len = HASHMAP_LEN(&cite_keys_seen);
+    if (cite_keys_seen_len > 0) {
+        str_append(out_html, "<ul class=\"cite-bibliography\">");
+
+        MallocStrings bib_strs = {arena, 0, cite_keys_seen_len};
+        ARRAY_MAKE(&bib_strs);
+
+        HASHMAP_FOR(seen_cite_pair, &cite_keys_seen) {
+            const char* cite_key = seen_cite_pair->key;
+
+            char* cite_bib_html = bib_create_bib_entry_html(
+                cite_key,
+                CITE_STYLE_CHICAGO
+            );
+
+            assert(cite_bib_html);
+
+            ARRAY_PUSH(&bib_strs, &cite_bib_html);
+        }
+
+        ARRAY_SORT(&bib_strs, SortMallocStrings);
+
+        ARRAY_FOR(bib_str, &bib_strs) {
+            str_append(out_html, "<li class=\"cite-bibliography-entry\">");
+            str_append(out_html, "%s", *bib_str);
+            str_append(out_html, "</li>");
+            free(*bib_str);
+        }
+
+        str_append(out_html, "</ul>");
     }
 
     ARRAY_FOR(cite_str, &cite_strs) {
