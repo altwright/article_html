@@ -53,6 +53,8 @@ ArticleData article_parse(const char *filepath) {
         return data;
     }
 
+    printf("%ld\n", kMallocInitialCapacity);
+
     Arena tmp = arena_make(kMallocInitialCapacity / 2);
     string file_buffer = {&tmp};
 
