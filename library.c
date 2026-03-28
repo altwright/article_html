@@ -53,8 +53,12 @@ ArticleData article_parse(const char *filepath) {
         return data;
     }
 
+    printf("%ld\n", kMallocInitialCapacity);
+
     Arena tmp = arena_make(kMallocInitialCapacity / 2);
     string file_buffer = {&tmp};
+
+    printf("1\n");
 
     int err = 0;
     DEFER(err = fclose(fp), assert(!err), fp = nullptr) {
@@ -72,6 +76,8 @@ ArticleData article_parse(const char *filepath) {
 
         file_buffer.data[file_size] = '\0';
     }
+
+    printf("2\n");
 
     string_view file_view = {
         file_buffer.data,
