@@ -415,6 +415,8 @@ void body_to_html(
     bool default_label_val = false;
     HASHMAP_MAKE(&existing_labels, &default_label_val);
 
+    bool lsb_bible_quoted = false;
+
     i64 current_open_tk_idx = -1;
 
     for (i64 line_idx = body_start_line_idx; line_idx < file_lines->len; line_idx++) {
@@ -523,6 +525,8 @@ void body_to_html(
                                             BibleBlockTokenData block_data = {
                                                 .passages = bible_parse_ref(arena, &verse_refs_str),
                                             };
+
+                                            lsb_bible_quoted = true;
 
                                             ArticleToken open_tk = {
                                                 TOKEN_PAREN_OPEN,
@@ -676,6 +680,8 @@ void body_to_html(
                                                             arena,
                                                             &verse_ref_str
                                                         );
+
+                                                        lsb_bible_quoted = true;
 
                                                         i64 end_c_idx = c_idx
                                                                         + metablock_data.range.end_c_idx
@@ -1343,6 +1349,18 @@ void body_to_html(
         }
 
         str_append(out_html, "</ul>");
+    }
+
+    if (lsb_bible_quoted) {
+        str_append(out_html,
+            "<p>"
+                "“Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
+                "Copyright © 2021 by The Lockman Foundation. Used by permission. All rights reserved. "
+                "Managed in partnership with Three Sixteen Publishing Inc.&nbsp;"
+                "<a href=\"http://lsbible.org/\">LSBible.org</a>&nbsp;and&nbsp;"
+                "<a href=\"http://316publishing.com/\">316publishing.com</a>.”"
+            "</p>"
+        );
     }
 
     ARRAY_FOR(cite_str, &cite_strs) {
