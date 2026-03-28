@@ -10,7 +10,7 @@
 #include "library.h"
 
 int main(int argc, char **argv) {
-    article_init();
+    article_init("./data/lsb.csv");
 
     ArticleData data = article_parse("data/draft_1.xmd");
     if (data.body_html) {

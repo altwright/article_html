@@ -18,13 +18,13 @@
 static bool g_initialized = false;
 static i64 kMallocInitialCapacity = 1024LL * 1024LL * 1024LL;
 
-void article_init() {
+void article_init(const char *lsb_csv_filepath) {
     if (!g_initialized) {
         alt_init(kMallocInitialCapacity);
 
         bib_init("article_html");
 
-        bible_init("./data/lsb.csv");
+        bible_init(lsb_csv_filepath);
 
         g_initialized = true;
     }

@@ -10,7 +10,7 @@ typedef struct ARTICLE_DATA_T {
     char* body_html;
 } ArticleData;
 
-void article_init();
+void article_init(const char* lsb_csv_filepath);
 
 void article_uninit();
 
