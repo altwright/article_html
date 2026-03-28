@@ -16,7 +16,7 @@
 #include "altcore/defer.h"
 
 static bool g_initialized = false;
-static i64 kMallocInitialCapacity = 1024LL * 1024LL * 1024LL;
+static constexpr i64 kMallocInitialCapacity = 1024LL * 1024LL * 1024LL;
 
 void article_init(const char *lsb_csv_filepath) {
     if (!g_initialized) {
