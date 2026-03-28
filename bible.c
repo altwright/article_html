@@ -60,7 +60,7 @@ void bible_init(const char *lsb_csv_filepath) {
         char *default_val = nullptr;
         HASHMAP_MAKE(&g_lsb_verse_map, &default_val);
 
-        FILE *fp = fopen("./data/lsb.csv", "rb");
+        FILE *fp = fopen(lsb_csv_filepath, "rb");
         assert(fp);
 
         fseek(fp, 0, SEEK_END);
