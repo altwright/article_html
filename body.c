@@ -1353,7 +1353,7 @@ void body_to_html(
 
     if (lsb_bible_quoted) {
         str_append(out_html,
-            "<p>"
+            "<p class=\"copyright-footer\">"
                 "“Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
                 "Copyright © 2021 by The Lockman Foundation. Used by permission. All rights reserved. "
                 "Managed in partnership with Three Sixteen Publishing Inc.&nbsp;"
