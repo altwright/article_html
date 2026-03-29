@@ -68,7 +68,6 @@ typedef struct LABEL_TOKEN_DATA_T {
 
 typedef struct LABEL_DISPLAY_TOKEN_DATA_T {
     string_view id;
-    string_view text;
     i64 end_c_idx;
 } LabelDisplayTokenData;
 
@@ -147,6 +146,7 @@ typedef struct CITE_STRINGS_T {
 typedef enum METABLOCK_KEY_E : i32 {
 #ifndef X_METABLOCK_KEYS
 #define X_METABLOCK_KEYS \
+    X(NONE) \
     X(LABEL) \
     X(BIBLE) \
     X(CITE) \
@@ -804,16 +804,6 @@ void body_to_html(
                                             }
 
                                             string_view label_id = metablock_data.val_strs.data[1];
-                                            string label_id_str = str_make_view(arena, &label_id);
-
-                                            string_view label_name_str = HASHMAP_GET_VAL(
-                                                &existing_labels,
-                                                &label_id_str.data
-                                            );
-
-                                            if (!label_name_str.data) {
-                                                break;
-                                            }
 
                                             i64 end_c_idx = c_idx
                                                             + metablock_data.range.end_c_idx
@@ -821,7 +811,6 @@ void body_to_html(
 
                                             open_tk.type = ARTICLE_TOKEN_TYPE_LABEL_DISPLAY;
                                             open_tk.data.label_display.id = label_id;
-                                            open_tk.data.label_display.text = label_name_str;
                                             open_tk.data.label_display.end_c_idx = end_c_idx;
 
                                             new_tk = true;
@@ -1263,7 +1252,7 @@ void body_to_html(
 
                 const BiblePassages *passages = &current_tk->data.bible_cite.passages;
 
-                Arena tmp = arena_make(512 * 64 * passages->len);
+                Arena tmp = arena_make(512 + 64 * passages->len);
                 DEFER(arena_free(&tmp)) {
                     for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
                         string hover_html = bible_passage_to_hover_ref_html(&tmp, passages->data[passage_idx]);
@@ -1395,7 +1384,14 @@ void body_to_html(
                     "<a class=\"label\" href=\"#" SV_FMT "\">",
                     SV_DATA(&current_tk->data.label_display.id)
                 );
-                str_append(out_html, SV_FMT, SV_DATA(&current_tk->data.label_display.text));
+
+                string label_id_str = str_make_view(arena, &current_tk->data.label_display.id);
+
+                string_view display_label = HASHMAP_GET_VAL(&existing_labels, &label_id_str.data);
+                if (display_label.data) {
+                    str_append(out_html, SV_FMT, SV_DATA(&display_label));
+                }
+
                 str_append(out_html, "</a>");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
