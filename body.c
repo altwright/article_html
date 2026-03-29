@@ -1277,6 +1277,7 @@ void body_to_html(
                 }
 
                 str_append(out_html, "</span>");
+                str_append(out_html, "</span>");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
