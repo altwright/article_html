@@ -1,0 +1,911 @@
+---
+title = Eschatology
+subtitle = The present reality of the Christ's Millennial reign
+author = Benjamin Wright
+published = 2025-11-30
+refs = ./refs.bib
+default_bible = LSB
+---
+
+#{{ label intro }} Introduction
+
+{{ bible block Mat 24:34-35 }}
+
+The above words of Christ are perhaps some of the most critical found in the scriptures in regards to the integrity
+of the New Testament and of Christ's identity. Did or did not all that He said would come to pass *actually* come to
+pass within the timeframe He said it would happen. If this would not true, then Christ would then have
+prophesied falsely, and our hope in Him would be in vain. What then did He say would come to pass?
+The prophecy of Christ in question is the Olivet Discourse regarding the End of the Age,
+which is found in {{ bible hover Mat 24 }}, {{ bible hover Luke 21 }}, and {{ bible hover Mark 13 }} of the synoptic
+Gospels. There are two distinct parts to Christ's
+prophecy in regards to the debate of its fulfillment: the first deals with the judgement against Jerusalem,
+and the second half deals with the Coming of the Son of Man at the End of the Age. In this article we will not deal
+with the first half of the prophecy, since the exegesis of it in {{ bible hover Luke 21:5-24 }} in combination with
+the witness of Josephus {{ cite jewish-war }} clearly marks it's fulfillment in 70 AD with the Siege of Jerusalem.
+We will instead deal with primarily the second half, the Coming of the Son of Man. The common understanding of
+Eschatology (e.g. the various forms of Premillennialism) largely denies that this had a fulfillment in the 1st century
+AD, and thus argue that Christ's reference to the lifespans of the alive generation He was addressing in His day as
+the timeframe for His prophecy's fulfillment should *instead* be understood as a *type* of generation who would eventually
+experience its fulfillment in the far future relative to Christ's earthly ministry. We contend that this is an
+inappropriate departure from the plain meaning of Christ's words mirrored in each of the synoptic Gospel accounts of
+the Olivet Discourse, and of the natural use of the word "generation", Γενεὰ (Genea), found elsewhere in the synoptic
+Gospels. We instead defend that the End of the Age did in fact occur within the lifespan of those who witnessed Christ's
+earthly ministry, specifically with the destruction of the Second Temple in 70 AD. This necessarily means we defend
+that the Coming of the Son of Man also coincided with the destruction of the Second Temple, and that the Millennial Reign
+of Christ also began at that moment. While this view of the End of the Age is common within mainstream Amillennialism
+and Postmillennialism, we also defend the controversial position that the First Resurrection of
+{{ bible hover Rev 20:4-6 }} not only is meant to *necessarily* coincide with the Coming of the Son of Man, but that
+it *did* occur alongside it in 70 AD. However, we will demonstrate from {{ bible hover Rev 20:4-6 }} that while the
+First Resurrection *is* a physical resurrection, it is strictly limited as a reward to the Apostolic Church leading up to
+the End of the Age, and that these Apostolic Christians are *currently* ruling and
+reigning with Christ *in heaven* with
+the same physical immortality that Christ received at His resurrection and *still* possesses *in heaven*. Defending this
+understanding of the First Resurrection from {{ bible hover Rev 20:4-6 }} also means we necessarily defend the
+Second Resurrection of {{ bible hover Rev 20:11-14 }} as a general physical resurrection of both the enemies and the
+Remnant of God from across the ages, including Millennial Christians, marking the
+end of history and the Day of Judgement. While it is controversial to argue that the Coming of the Son of Man and the
+First Resurrection occurred in
+70 AD, we believe this due to the Second Coming of Christ being ill-defined, since the Second Coming is commonly
+conflated with the end of history and the Day of Judgement. We instead propose that the Second Coming should be used as
+a term to refer exclusively the Coming of the Son of Man at the End of the Age in 70 AD,
+and the Second Resurrection as a term should be favoured to refer to the Day of Judgement at the end of the Millennium.
+We believe this variant of Postmillennialism, defending the First Resurrection as a physical resurrection occurring
+in 70 AD, help's to explain difficult facets of the Epistles in the New Testament that insist upon the imminence of both
+the Second Coming *alongside* a physical resurrection of the "dead in Christ"
+{{ bible cite 1 Thess 4:14-16, 1 Cor 15:22-27 }}. We also propose that the other difficult facets of the Epistles
+that refer to either the Rapture of Christians {{ bible cite 1 Thess 4:17 }} or Christian's who are alive at the Last
+Trumpet receiving immortality {{ bible cite 1 Cor 15:51-52 }} should be instead be understood as being a result of the
+Apostles conveying *partial* revelation they received regarding the End of the Age and the upcoming Millennium which
+should be interpreted in light of the *full* revelation of the End of the Age and the upcoming Millennium as found
+in the Book of Revelation. Consequently, we propose that passages that are understood as referring to the Rapture
+should instead be interpreted as referring to the *process* of the elect being gathered *during* the Millennium,
+and those passages understood as referring to the Last Trumpet should instead be understood as referring to
+Second Resurrection. We are proposing this relatively novel variant of Postmillennialism to challenge
+the prevailing dominance of Dispensational Premillennialism, now increasingly recognised for its
+inconsistent hermeneutics and its ramifications on Practical Theology, as well to counter valid criticisms of
+weak-points in mainstream Postmillennialism. As much as it is painted as a speculative field with little
+practical application, Eschatology in fact has far-reaching impacts on wider theology. This is most obvious in
+Eschatological positions where the End of the Age is still future to us nowadays, which has been the starting of
+the erroneous Charismatic and Pentecostal traditions that assert we are currently experiencing the End of the Age
+and are consequently receiving the signs, wonders, and Apostolic gifts of the Holy Spirit
+that were promised in the Old Testament for the End of the Age. Dispensational Premillennialism can also result in
+teachings in the New Testament dealing with the Kingdom of Heaven as not being applicable to the Christian today, but
+can only be regarded as a far-off future reality. In contrast, we hope to demonstrate Postmillennialism in general,
+including our own variant, is both
+able to provide a consistent argument to refute Charismatic and Pentecostal traditions due to the End of the Age
+having already been fulfilled, as well as to uphold the New Testament teachings regarding the Kingdom of Heaven
+as presently applicable to the current Millennium.
+
+# Defence
+
+##{{ label coming }} The Coming of the Son of Man
+
+{{ bible block Mat 24:29-30 }}
+
+As stated in {{ label intro }}, the starting point of this entire argument is of the Olivet Discourse having
+*a* fulfillment in the Siege of Jerusalem and ultimately in the destruction of the Second Temple. Consequently,
+the tribulation being referred to in {{ bible hover Mat 24:29 }} should be understood as the great tribulation
+against Jerusalem, which is especially clear in Luke's account of the Olivet Discourse. There is a clear chronological
+marker made in {{ bible hover Mat 24:29 }} that is placed "immediately after the tribulation of those days", which
+would coincide with the destruction of the Second Temple in 70 AD *after* Jerusalem had already been conquered.
+The events described of the sun being darkened, the moon not giving its light, and the stars of heaven falling, are
+meant to have taken place at this point in time. While it may seem that a literal astronomical event
+was required for its fulfillment, the portions of the Old Testament that are being quoted reveal what it actually means.
+The are a number of Old Testament passages this verse could be drawing from, with the most direct quotation in verse 29
+being found in Isaiah 13:
+
+{{ bible block Isa 13:9-11 }}
+
+Isaiah 13 is an oracle of judgement against Babylon {{ bible cite Isa 13:1 }}, which experienced a fulfillment in the
+Medo-Persian conquest of Babylon in the 6th century BC {{ bible cite Isa 13:17-19 }}. It's quotation by Christ in
+Matthew 24 however signify's that the judgement against Jerusalem is at least on par with the judgement against
+Babylon, and that Jerusalem is being spoken of *as* Babylon. In fact, the second quotation in Matthew 24:29 from
+Isaiah 14 reinforces the point that Jerusalem should be regarded as the *greater* Babylon foretold in the Old Testament.
+Prior to demonstrating this however, the context of the Isaiah 14 quotation should be established.
+The beginning of Isaiah 14 follows on from the end of Isaiah 13 in its description of Israel returning to the land
+after the defeat of Babylon at the hands of the Medo-Persians:
+
+{{ bible block Isa 14:1-2 }}
+
+While there was a fulfillment of this in history with the return from the Babylonian Exile, the part of this passage
+where the Israelites take their Babylonian captors captive was not fulfilled in this time. However, the passage goes on:
+
+{{ bible block Isa 14:3-11 }}
+
+Up to this point the passage could be understood simply as a supernatural view of the human kings of Babylon being
+dragged down into the underworld and being received by other fallen kings. However, verse 12 onwards clarifies the
+identity of the *singular* King of Babylon:
+
+{{ bible block Isa 14:12-15 }}
+
+Here the King of Babylon is spoken of in supernatural terms, one who was once in heaven, but after being cast out is seeking
+to overthrow the powers of heaven. {{ bible hover Isa 14:16 }} returns to speaking of the King of Babylon in human terms,
+but there are examples elsewhere is scripture such as {{ bible hover Eze 28 }} where a human king and a separate
+supernatural entity are addressed simultaneously. Due to the parallels between {{ bible hover Isaiah 14:12-15 }} and
+{{ bible hover Ezekiel 28:11-19 }}, the Son of the Dawn in Isaiah 14 is most likely referring to Satan, specifically
+his pre-Fall identity. The defeat of Babylon, an outpost of Satan's dominion, in history, definitely had a
+supernatural aftermath, but just as there was an unfulfilled component of Israel's subjugation of Babylon, there is
+also an unfulfilled component of Satan's total humiliation by this point in history. Consequently, with Jerusalem
+being identified as the greater Babylon in the Olivet Discourse, the defeat of greater Babylon must also coincide
+with the total humiliation of the King of Babylon, Satan. Satan's humiliation in {{ bible hover Isa 14:15 }} involving
+being brought down to the deepest parts of Sheol also correlates with Satan being bound and cast into the Abyss at the
+beginning of the Millennium in {{ bible hover Rev 20:3 }}, which will be expounded later. In conclusion, Christ in
+{{ bible hover Mat 24:29 }} proclaiming that the end of the tribulation of Jerusalem in 70 AD will also result in
+the "sun being darkened", the "moon not giving its light", the "stars falling from heaven", should be understood as
+Christ equating the throwing down of Jerusalem with the throwing down of
+greater Babylon and its king, Satan, on the Day of Yahweh.
+The argument for this equation is further bolstered by a study of the Book of
+Revelation, which will be left to a later section.
+
+{{ bible block Mat 24:30 }}
+
+The "sign of the Son of Man" at face value could seem to be referring to another physical astronomical event,
+but as we have seen in the proceeding verse this would go against the pattern of Christ's and the Old Testament's
+use of astronomical language. The only other reference to a "sign of the Son of Man" in either the Old or New
+Testaments however is from the beginning of the Olivet Discourse:
+
+{{ bible block Mat 24:1-3 }}
+
+Here the disciples are associating the sign of Christ's coming with not only the End of the Age, but also the
+destruction of the Second Temple. Consequently, the destruction of the Second Temple can be understood as an
+*earthly* sign of Christ's coming. However, Christ states that the sign of the Son of Man will also appear in *heaven*
+(the underlying Greek for "sky" is οὐρανῷ, or ouranō, which can equally be translated as "heaven"). Therefore, if
+this is meant to be a *heavenly* sign, then it rules out an physical astronomical sign as being its fulfillment.
+Considering the passage where the Coming of the Son of Man is quoted from however, the *sign* being heavenly is
+further evident:
+
+{{ bible block Dan 7:13-14 }}
+
+The vision of Daniel is centred around the destruction of the Fourth Beast and the Little Horn, and does not occur
+at the end of history. The scene of the Ancient of Days seated on His throne also takes place in heaven, not on
+Earth, and the Son of Man receives the everlasting dominion from the Ancient of Days in heaven. Consequently, Christ
+quotes this portion of Daniel 7 *not* to claim that He will physically and visibly descend onto the Earth, but that
+He will receive the everlasting kingdom from the Ancient of Days at the very end of Jerusalem's tribulation,
+the destruction of the Second Temple. When it states in {{ bible hover Mat 24:30 }} that all the tribes of the earth
+will see and mourn, it must be noted that the Greek term for "earth", γῆς (gēs), can equivalently be translated as
+"land", and in combination with the term "tribe", as well as being in the context of the tribulation of Jerusalem,
+it can be understood as a specific reference to the Tribes of Israel
+in the Promised Land mourning, *not* all the Nations of the World.
+
+So far, it has been demonstrated that the details of {{ bible hover Mat 24:29-30 }} leading up to the Coming of the Son
+of Man and the End of the Age can be understood as having a
+supernatural and heavenly fulfillment based off its direct Old Testament quotations, as opposed to being fulfilled
+physically or astronomically. {{ bible hover Mat 24:31 }} represents a turning point in Christ's prophetic timeline
+however, with it describing events that take place *after* the End of the Age:
+
+{{ bible block Mat 24:31 }}
+
+While this passage is commonly interpreted as referring to the instantaneous Rapture of believers, all that this passage
+states is that Christ at the beginning of the Age to Come sends forth His angels for the *purpose* of gathering His
+elect from every corner of the Earth. As will be further demonstrated in the section {{ label millennium }},
+this Gathering, what is commonly referring to as the Rapture, should be understood as a process that *began* in 70 AD,
+and not as an instantaneous event.
+
+##{{ label first-res }} The First Resurrection
+
+{{ bible block Rev 20:4-6 }}
+
+This section will aim to demonstrate that the First Resurrection in {{ bible hover Rev 20:4-6 }} should not only be
+understood as having occurred at the End of the Age in 70 AD, but that it should be identified with the repeated
+statements found in the New Testament Epistles regarding the expectation of the dead in Christ rising *first* at
+His coming.
+
+The context of {{ bible hover Rev 20:4-6 }} must first be noted. The First Resurrection takes place at the beginning
+of the Millennium, after Satan has been bound so that he can no longer deceive the nations for the entirety of the
+Millennium {{ bible cite Rev 20:2-3 }}.
+Those who receive the First Resurrection are specifically those who are Christ's martyrs and had not worshipped
+the Beast, it's Image, and had not received it's Mark {{ bible cite Rev 20:4 }}. This subset of humanity are the
+only ones who are resurrected, with rest of humanity only resurrecting at the end of the Millennium {{ bible cite
+Rev 20:5 }}. Those who receive the First Resurrection will then reign with Christ and be priests before Him for
+the duration of the Millennium. Considering that those who received the First Resurrection are those who refused
+to receive the Mark of the Beast, then identifying the Beast can help to identify the recipients of the First
+Resurrection.
+
+The Beast referred to in {{ bible hover Rev 20:4 }} is the one who was thrown into the Lake of Fire alongside the
+False Prophet in {{ bible hover Rev 19:20 }}, just prior to Satan being bound. We know that this occurs prior to
+Satan being bound and the beginning of the Millennium, since Satan is thrown into Lake of Fire at the end of the
+Millennium where the Beast and the False Prophet already are {{ bible cite Rev 20:10 }}. Importantly, the Beast and the
+False Prophet are thrown into the Lake of Fire *at* the coming of Christ
+{{ bible hover Rev 19:19 }}. Considering that we have established in section {{ label coming }}
+that the Coming of the Son of Man and the End of the Age took place in 70 AD according to the Olivet Discourse, then
+the entities, either natural or supernatural, that the Beast and the False Prophet symbolise must also have existed
+up until 70 AD. The Beast and the False Prophet matches a typology found throughout The Book of Revelation and Daniel of
+there being a powerful pair of God's enemies that co-jointly wage war on His people up until the Coming of the Son of
+Man. Prior to their appearance in Revelation 19, the Beast and the False Prophet are depicted as the Scarlett Beast
+carrying the Great Harlot in Revelation 17 and 18, and as the Beast of the Sea and the Beast of the Earth in Revelation 13.
+This pairing also appears in the Book of Daniel, where prior to the Coming of the Son of Man the Fourth Beast and the
+Little Horn wage war upon the saints in Daniel 7, and in Daniel 2 they are depicted as the Feet of Iron and Clay.
+These pairings are no coincidence, and each of their depictions
+illuminates different aspects of their relationship with each other.
+
+###{{ label daniel-2 }} Daniel 2
+
+{{ bible block Dan 2:31-35 }}
+
+{{ bible block Dan 2:40-44 }}
+
+In Daniel 2 the Legs of Iron are identified as the Fourth Kingdom, which in turn can be conclusively identified as
+the Roman Empire. The Feet of Iron and Clay belong to the Legs of Iron, so they can be interpreted as representing a
+phase of the Roman Empire right before the coming of the Kingdom of Heaven (represented by the Stone cut without
+hands) that takes away its dominion. Multiple interpretations are given in {{ bible hover Dan 2:41-43 }} about the
+meaning of the iron mixed with the clay, with the first being that it represents "a divided kingdom"
+{{ bible cite Dan 2:41 }}. The iron represents the power of the Roman Empire, but the clay, being an *earthen* material,
+can be understood as representing a power *from the land*, i.e. the Promised Land. This union of iron and clay can
+be seen in history, where by the New Testament era Judea was deeply intertwined with the wider Roman Empire,
+and its rulers exercised their authority with the permission of Rome. This relationship between Jerusalem and Rome
+was always strained, however. {{ bible hover Dan 2:43 }} emphasises the ethnic division within this relation
+between the Jews and the Romans by noting how the "seed of men" represented by the iron and the clay not clinging
+together, just as iron does not combine with clay, yet it remains dangerous due to the presence of the iron. There
+is also a focus on the toes of the feet being partly iron and others being partly clay in {{ bible hover Dan 2:42 }},
+although the emphasis of the iron and clay is on their relative strengths.
+The number ten represented by the number of toes found across the feet will also appear again later in Daniel 7. The
+Stone cut without hands is noted as striking the Feet of Iron and Clay "in the days of those kings"
+{{ bible cite Dan 2:44 }}, resulting in the entire statue turning to
+dust. The imagery of a stone is often used to refer to the Messiah in the Old and New Testament
+{{ bible cite Psa 118:22, Isa 28:16, Eph 2:20 }}, and this passage seems to draw upon that imagery while at the same
+time identifying
+the Stone as the Kingdom of Heaven {{ bible cite Dan 2:44 }}. These two concepts are not in conflict with one another,
+and it will be seen in Daniel that the Coming of the Son of Man should be considered as synonymous with the arrival
+of the Kingdom of Heaven. Since the Messiah arrived in days of the Julio-Claudian Caesars and the latter days of
+Jerusalem, we can confidently conclude that the Iron and the Clay are a reference to the authorities of Rome and
+Jerusalem.
+
+###{{ label daniel-7 }} Daniel 7
+
+{{ bible block Dan 7:7-8 }}
+
+{{ bible block Dan 7:11-12 }}
+
+{{ bible block Dan 7:19-27 }}
+
+The pair representing the great enemies of God before the Coming of the Son of Man in {{ bible hover Dan 7:13-14 }}
+are named the Fourth Beast and the Little Horn. Due to the Fourth Beast being identified in {{ bible Dan 7:23 }} as the
+same Fourth Kingdom in {{ bible hover Dan 2:40 }}, the Fourth Beast can be confidently identified once more as the
+Roman Empire. The Fourth Beast is noted as having ten horns, interpreted as being ten kings,
+that will arise from it {{ bible cite Dan 7:24 }}.
+The natural interpretation of this is that ten rulers of the Roman Empire will arise before the Coming of the Son of
+Man. This accords with history, in that there had been ten Caesars of the Roman Empire that had ruled consecutively by
+70 AD: Julius Caesar, Augustus, Tiberias, Caligula, Claudius, Nero, Galba, Otho, Vitellius, and Vespasian.
+{{ bible hover Dan 7:24 }} also notes that there is another horn, the Little Horn {{ bible cite Dan 7:8 }}, that is
+different from the other horns {{ bible cite Dan 7:24 }}. It is different from the other horns in that it is
+larger than the other horns, and that it had eyes and a mouth by which it blasphemed and boasted
+{{ bible cite Dan 7:20 }}. The Little Horn also arises after the ten horns {{ bible cite Dan 7:24 }},
+not in a *temporal* sense, but in a
+*positional* sense (the Aramaic word underlying "after" is ambiguous and can equally be translated as "with", "before",
+or "in the midst of"). Since the Little Horn arises out of the Fourth Beast but seemingly takes on a life of its own
+and turns on the Fourth Beast by uprooting three of its horns {{ bible cite Dan 7:8 }}, the Little Horn should
+be understood as an authority that had its origin within the Fourth Kingdom, but then declared independence, rebelled
+against the Fourth Kingdom, but then had only a partial victory against it that it took pride in. The Little Horn is
+also noted as attempting to "make changes in seasons and in law"{{ bible cite Dan 7:25 }}. This reference to "law"
+should be understood as referring to the Law of Moses, since it is spoken of not in relation to the laws of the
+Fourth Kingdom, but instead is spoken of in the context of the Little Horn's persecution of the
+"saints of the Highest One" {{ bible cite Dan 7:25 }} who rightly follow the Law of Moses. If, then, the Little Horn
+is intent upon changing the Law of Moses, then they must be an entity who must have control of Jerusalem, since
+exerting control over the Second Temple is a prerequisite to exerting control over the Law of Moses. The attempt of the
+Little Horn to make a "change in seasons"{{ bible cite Dan 7:25 }} should not be understood as an attempt to
+change how time is measured or change the yearly weather, but it instead should be understood as an attempt to change
+*fate*, or the *appointed* time. Considering that the Little Horn's war against the saints is taking place shortly
+before the Coming of the Son of Man, the Little Horn's rage against the seasons and the law can be understood
+as an attempt to thwart the End of the Age. Each of these features of the Little Horn point to it being identified
+*as* Jerusalem once more, just like the Clay in Daniel 2. That no singular "king" can be identified for Jerusalem
+unlike the ten horns of the Fourth Beast can be explained away by the note made in {{ bible hover Dan 7:24 }} that
+the Little Horn is "different" from the ten horns, and its greater appearance, combined with the horn imagery of the
+Old and New Testament referring to power and authority in general, leads us to the conclusion that the Little Horn
+is *more* than just a singular king. As for the three kings that fall before the Little Horn, there is a period
+of time known as the Year of the Four Emperors in Roman history where three weak Caesars (Galba, Otho, and Vitellius)
+ruled Rome after the assassination of Nero in 68 AD, with each of them having very short reigns during the civil war
+that ensued. These three weak Caesars could also correlate to the toes of clay in {{ bible hover Dan 2:42 }}.
+When Vespasian withdrew his army from Judea to end the civil war, there was a period of time when the
+Jewish forces believed they had won the war against Rome, which could explain the Little Horn's boasting if it is
+to be identified as Jerusalem. While there remain other data-points in Daniel 7 that could further
+strengthen the case, we conclude that the Little Horn of Daniel 7 should be identified as Jerusalem and its authorities.
+
+###{{ label rev-13 }} Revelation 13
+
+{{ bible block Rev 13:1-3 }}
+
+{{ bible block Rev 13:11-17 }}
+
+Featuring the Beast of the Sea and the Beast of the Earth, this pair can also be mapped unto the prime suspects of
+the Roman Empire and Jerusalem. As for the Beast of the Sea, it's description is directly drawn from Daniel 7, where
+features from all four Beasts representing the four kingdoms that also come out of the sea in {{ bible hover Dan 7:2-7 }}.
+Consequently, this Beast of the Sea can be understood as representing the fourth and final kingdom before the
+Coming of the Son of Man that has subsumed the prior three kingdoms. This accords with history, in that the
+Roman Empire was the most powerful empire in history up until that point and had adopted much of the preceding
+kingdoms cultures and strategies.
+The Beast of the Sea is also granted authority to war with the saints and overcome them for three and a half years
+{{ bible cite Rev 13:5, 7 }}.
+This too accords history, where Nero great persecution of the Church lasted three and a half years from the end of
+64 AD up until Nero's death in the middle of 68 AD.
+As for the seven heads of the Beast of the Sea, and the head that had been healed of
+a fatal wound, more will unpacked in Revelation 17 that further connects the Beast of the Sea with the Roman Empire.
+Another piece of evidence for the Beast of the Sea being an entity contemporaneous with the author and immediate audience
+of the Book of Revelation in the first century AD is the author's warning in {{ bible hover Rev 13:9-10 }} that those
+saints who received the book should be prepared to be slain by the Beast of the Sea, and that they should
+persevere. This warning, in combinations with other warnings like the one found in {{ bible hover Rev 1:3 }}, point
+to the Beast of the Sea being an entity that was a threat to the immediate audience of the Book of Revelation in the
+first century.
+
+The Beast of the Earth's identity can be more easily drawn from this passage however. The first piece of information
+given that's relevant to its identity is that the Beast is seen "coming up out of the earth"{{ bible cite Rev 13:11 }}.
+Once more, the Greek term for "earth" - γῆς (gēs) - should be understood as referring to *land*. In isolation this
+could be understood still as referring to the whole world, but the details of the Beast of the Earth given in the
+same verse limits the term's usage here down to *the* land, the Promised Land. The detail is that the Beast
+"had two horns like a lamb" and spoke "as a dragon" {{ bible cite Rev 13:11 }}. The imagery of a lamb is a strong
+allusion to the sacrificial system of the Law of Moses, and for the Beast to present with the horns of a lamb
+suggests that the Beast has authority *over* the lambs, or over the sacrificial system. This can only be understood
+as a reference to the priestly authority of Jerusalem and the Second Temple. That the same Beast also had the voice of a
+dragon, with the dragon being later identified as being Satan himself {{ bible cite Rev 20:2 }}, suggests that it
+reflects a perverse and unholy priestly system that deceives others regarding its purity, which strongly accords
+with the state of Jerusalem's priestly authorities during Christ's earthly ministry {{ bible cite Mat 23:27-28 }}.
+Consequently, the land the Beast arises out of should be understood as a reference to Judea.
+The Beast of the Earth is then said to exercise "all the authority of the first beast in his presence". On the
+assumption that the first beast, the Beast of the Sea, is to be identified with the Roman Empire, then the entity
+that the Beast of the Earth is identified with must have exercised the authority of Rome with its permission. Jerusalem
+once more matches this description{{ bible cite John 11:47-48 }}, with an example being that it was only able to deal
+out capital punishment with the permission of Rome{{ cite antiquities[book:20, verse:200] }}.
+As for the Beast of the Earth making "the earth and those
+who dwell in it to worship the first beast, whose fatal wound was healed"{{ bible cite Rev 13:12 }}, it must be
+demonstrated that the authorities of Jerusalem were actively leading Judea into an idolatrous relationship with Rome.
+This can be demonstrated in multiple places in the New Testament, with {{ bible hover John 11:47-80 }} demonstrating
+the priestly authorities willingness to kill Jesus to preserve their authority granted to them by Rome, and {{ bible
+hover John 19:15 }} demonstrating Jerusalem's explicit idolatry with the masses declaring that they have
+"no king but Caesar" in place of God {{ bible cite 1 Sam 8:7-8 }}.
+
+When it states that the Beast of the Earth "does
+great signs, so that he even makes fire come down out of heaven to the earth in the presence of men", it is not
+necessary for there to be a literal manifestation of this sign in history. Instead, the imagery of fire coming down
+out of heaven is meant to evoke Elijah's instances of the same miracle in the Old Testament
+{{ bible cite 1 King 18:36-38, 2 King 1:10 }}, where it demonstrated the favour of God upon Elijah. Consequently,
+the Beast of the Sea being able to perform the same miracle, even though it is idolatrous, is meant to symbolise
+that the Beast of the Sea successfully deceives others that it has gained the favour of God. This can be seen in the
+history of Jerusalem, since by being able to crucify Jesus, persecute His followers, grow and prosper,
+and even for a time drive out Romans during the Jewish War, it appeared to both Jews and professing Christians
+that were tempted to revert back to Judaism that Jerusalem was in fact favoured by God. {{ bible hover Rev 13:14 }}
+specifically notes that it was God who gave the signs for the Beast of the Sea to do, for the purpose of raising
+him before bring him down even lower.
+This accords with Paul's explanation for God partially hardening Israel "until the fullness
+of the Gentiles has come in"{{ bible cite Rom 11:25 }}, and that they are raised up as enemies of the saints for the
+sake of the Gospel{{ bible cite Rom 11:28 }}. Consequently, the sign of fire being brought down out of heaven can be
+attributed to Jerusalem in a non-literal manifestation.
+
+As a result of deceiving the people of the land with this sign, the Beast of the Sea then commands them to make an image
+of the Beast of the Sea {{ bible cite Rev 13:14 }}. The Beast of the Earth then gives life to the Image of the Beast,
+granting the Image the ability to speak and causing those who do not worship the Image to be killed {{ bible cite
+Rev 13:15 }}. The Beast of the Earth, pretending to be favoured by Yahweh, must be understood as presenting the
+Image of the Beast as an image of Yahweh, much like Aaron presenting the Golden Calf
+{{ bible cite Exodus 32:4-5 }}. That the Image is made in the likeness of the Beast of the Sea, yet is proclaimed as
+God and takes on a life of its own, suggests that the forging of the Image of the Beast marks an act of rebellion
+*from* the Beast of the Earth *against* the Beast of the Sea, since the people's worship is now redirected from the
+Beast of the Sea to the now living Image of the Beast. It also parallels how the Little Horn of Daniel 7 took on a life
+of its own and turned on the Fourth Beast {{ bible cite Dan 7:8 }}. This too would accord with the
+history of Jerusalem, since even though the authorities of Jerusalem had long depended upon Rome as the foundation of
+their power, the Jewish War began due to Jerusalem declaring they had no need for a Roman foundation anymore and that
+they had the favour of God to conquer the Romans. However, the tyranny that the authorities of Jerusalem inflicted
+upon Judea were worse than the tyranny of the Romans {{ cite jewish-war[book: 5, verse: 442] }},
+all the while claiming the favour of God to ultimately win the war much like how Rome had come back from the brink
+of death {{ cite jewish-war[book: 6, verse: 286] }}, and enforcing total submission
+to the Second Temple system by the sword {{ cite antiquities[book: 20, verse: 200] }}. This supposed devotion to
+Yahweh therefore was not only similar to their prior devotion to Caesar, but was even more perverse.
+
+In regards to the Mark of the Beast in {{ bible hover Rev 13:16 }}, this is meant to be a deliberate perversion of
+God's command in {{ bible hover Deut 6:8 }} and {{ bible hover Deut 11:18 }} to symbolically mark their forehead and
+hands with the word of God, which represents their active devotion to God. The idolatrous repurposing of this imagery
+from the Law of Moses reinforces the conclusion that the Image of the Beast is meant to be a deliberate mockery of
+Yahweh worship. That those without the Mark are prevented from buying or selling accords with New Testament history
+for how the saints of Jerusalem were often suffering great poverty {{bible cite Acts 4:34-35, 1 Cor 16:3, Rom 15:25-27}},
+and they were excluded to a greater extent within Jerusalem as time went on leading up to the Jewish War. As for the
+name and number of the Beast that the Mark consists of, the Beast in question could be either the Beast of the Earth
+or the Beast of the Sea that Image depicts, since it is possible that it is the Image of the Beast that is acting in this
+verse {{ bible cite Rev 13:16 }}.
+This is where we admit there is still an element of mystery regarding candidate names for the number of the Beast,
+six hundred and sixty-six. We do insist however that it is not necessary for it to be the name of an individual, since
+the statement that "it is the number of man" in {{ bible hover Rev 13:18 }} is similar to the statement in
+{{ bible hover Rev 21:17 }} where the point is that the measurements are human *comprehendible*, and are not impossible
+to calculate. The candidate for the
+name also needs to be knowable for the Greek-speaking recipients of the Book of Revelation in the 1st century, due to
+the author's call for "him who has understanding" to calculate the number of the beast. The strongest contender for
+the name
+we believe was recorded by Iranaeus in the second century AD, where he posited the name Lateinos (ΛΑΤΕΙΝΟΣ), the
+Greek name for the Romans. If this is true, then number of
+the Beast could be a device used by the author of the Book of Revelation to help the audience recognise that the Roman
+Empire, the *Latins*, are the Fourth Beast of Daniel {{ bible cite Dan 7:7 }}, and that even Jerusalem leading up to
+Jewish War was to be identified with the Fourth Beast before splitting off as the Little Horn {{ bible cite Dan 7:8 }}.
+
+###{{ label rev-17 }} Revelation 17 & 18
+
+{{ bible block Rev 17:1-18 }}
+
+Here the pairing of God's arch-enemies appear once more. Here, the author of Revelation is shown the impending
+judgement of the Great Harlot {{ bible cite Rev 17:1 }}. The Great Harlot is seen seated upon a Scarlett Beast,
+who once more has seven horns and ten horns {{ bible cite Rev 17:3 }}. The Great Harlot is stated as being clothed
+in purple and scarlett, and adorned with gold, precious stones and pearls {{ bible cite Rev 17:4 }}. This imagery
+immediately evokes the description of the garments of the high priest in {{ bible hover Exo 28 }}, hinting
+that the Great Harlot is to be identified with the priestly authorities of Jerusalem. Yet, the Great Harlot as named
+Babylon the Great according to what is written on her forehead {{ bible cite Rev 17:5 }}. Babylon is the greatest
+archetypal enemy of God in the Old Testament, from the defiance of God's decree at Babel in {{ bible hover Gen 11 }}
+through to King Nebuchadnezzar destroying Solomon's Temple in {{ bible hover 2 Kings 25 }}. The Great Harlot however
+also has another title on her forehead, "Mother of harlots and of the abominations of the earth". The imagery of both
+a harlot and Babylon in combination appears in {{ bible hover Eze 23 }}, where Jerusalem is depicted as whoring herself
+out to Babylon in graphic detail {{ bible cite Eze 23:16-21 }}. Consequently, the Great Harlot is immediately associated
+with both Jerusalem *and* Babylon simultaneously.
+
+Then comes details regarding the Scarlett Beast, which are more challenging to unpack.
+The seven heads and ten horns of the Scarlett Beast clearly identifies
+it with both the Beast of the Sea in {{ bible hover Rev 13 }} and the Fourth Beast of {{ bible hover Dan 7 }}.
+It's introduction as the Beast that "was, and is not, and is about to come up out of the abyss and go to destruction"
+{{ bible cite Rev 17:8 }} is a deliberate inversion of Christ's title as the one "who is and who was and who is to come"
+{{ bible cite Rev 1:8 }}. The imagery of the Scarlett Beast coming out of the abyss and then going to destruction
+parallels Satan being released from the abyss at the end of the Millennium {{ bible hover Rev 20:3 }}. The Beast of the
+Sea however, which the Scarlett Beast is equivalent, is destroyed at the beginning of the Millennium
+{{ bible cite Rev 19:20 }}. The fate of the Scarlett Beast is therefore meant to deliberately mirror the later fate
+of Satan. Alongside the statement that the Scarlett Beast "is not", there is another statement made that the Scarlett
+Beast "is". The seven heads are explained as being seven mountains that the Great Harlot sits upon
+{{ bible cite Rev 17:9 }}, which correlates strongly to the seven hills of Rome, the power that the Great Harlot
+depends upon. The seven heads are also identified as seven kings, with five having already fallen, one currently
+ruling, and another in the future set to reign for only short time from the point of view of the author of the Book of
+Revelation {{ bible cite Rev 17:10 }}. When placed in the history of the Roman Empire, the Book of Revelation must have
+been written during the reign of Nero, the sixth emperor of Rome, whose successor Galba reigned only for approximately
+six months. Since Nero must have been alive during the writing of the Book of Revelation, his assassination could not
+be the reference for the Scarlett Beast being *presently* regarded as "is not". Considering that the Scarlett Beast
+is stated as being presently *in* the abyss {{ bible cite Rev 17:8 }}, and that the Great Harlot is also seated
+upon many waters {{ bible cite Rev 17:1 }}, it appears that the abyss is to be equated with the many waters, and that
+the Scarlett Beast is not only *in* the abyss, but *is* the abyss that the Great Harlot is seated upon. This accords
+too with the Beast in {{ bible hover Rev 13 }} that is identified as Rome being described as "coming up out of the sea"
+{{ bible cite Rev 13:1 }}. Later in {{ bible hover Rev 17:15 }} the many waters, and consequently the abyss, are also
+equated with "peoples and crowds and nations and tongues". Consequently, the Scarlett Beast being "not" and then
+arising out of the abyss can be understood as representing the cycle and sequence of the beastly kingdoms and
+Satanic dominions of Daniel 7
+rising ("was"), falling ("is not"), and rising again ("is about to come") repeatedly within the world ("the waters"),
+ultimately manifesting in its latest form as the Roman Empire.
+
+The Scarlett Beast itself is regarded as "an eighth and is one of the seven" kings
+{{ bible cite Rev 17:11 }}. This mysterious phrase should be understood in light of the presently reigning king,
+and that the full power of the Scarlett Beast is being wielded by the present king uniquely, "who goes to destruction".
+The ten horns are also explained as being ten *different* kings from the kings the seven heads represent. These
+ten "have not yet received a kingdom", but they will "receive authority as kings with the beast for one hour" for
+one singular purpose that they lend their power and authority to the Scarlett Beast for {{ bible cite Rev 17:12-13 }}.
+That singular purpose is to "wage war against the Lamb" {{ bible cite Rev 17:14 }},
+which is what will last for only an hour before their defeat, symbolising a
+limited period of time. Considering the prevalence and consistency of the references to the specific timespan of 42
+months, or three and a half years, found across the Book of Revelation {{ bible cite Rev 11:2, Rev 13:5 }} and Daniel
+{{ bible cite Dan 7:25, Dan 12:7 }}, the hour mentioned in {{ bible hover Rev 17:12 }} most likely refers to this
+same finite period of time. The ten kings the horns represent must be contemporaneous with either the present
+sixth or later seventh king of the Scarlett Beast's seven heads. If they are meant to be kings that have never possessed
+a kingdom beforehand, then it appears that {{ bible hover Rev 17:20 }} is emphasising that these are entities that
+are *made* kings by the Scarlett Beast granting them authority equivalent to that of a king, namely in the form of
+waging war or executing capital punishment. The number of the kings, ten, could either represent another ten literal
+individuals in history, or it could represent rather completeness in the form of every principality in the Scarlett
+Beast being vested with the authority to wage war against the Lamb. This war against the Lamb must take place
+before the Great Harlot is destroyed by the Scarlett Beast and the ten kings, as seen in {{ bible hover Rev 17:17 }}.
+Assuming that the Great Harlot is Jerusalem, which will be further demonstrated in {{ bible hover Rev 18 }}, then
+this war against the Lamb must have occurred between the reign of Nero and 70 AD. The candidate for this war against the
+Lamb is therefore the persecution of the Church under Nero, which began at the end of 64 AD, and only ended with
+Nero's assassination in the middle of 68 AD. This intense period of persecution, the first of its kind which was
+empire-wide and resulted in the deaths of Apostles such as Paul and Peter, also lasted only three and a half years,
+which accords with the likely meaning of the single hour in {{ bible hover Rev 17:12 }}. Due to the empire-wide nature
+of the persecution, we therefore believe that the ten kings represent the principalities from *every* part of the Roman
+Empire being granted the authority by the emperor to execute capital punishment on Christians. Upon the commencement
+of the Jewish War and the death of Nero however, these principalities across the Roman Empire not only lent their
+forces to destroy Jerusalem, but also began persecuting Jews found throughout the empire.
+This aspect of history can explain the Scarlett Beast's and the
+ten king's role in turning on and destroying the Great Harlot in {{ bible hover Rev 17:16-17 }}.
+
+The last important statement made in Revelation 17 regarding the identity of the Great Harlot is found in
+{{ bible hover Rev 17:18 }}. The Great Harlot is identified as the great city, "which has a kingdom over the kings of
+the earth" {{ bible cite Rev 17:18 }}. The present tense of the statement signifies that the Great Harlot is to be
+identified as a kingdom contemporaneous with the author of the Book of Revelation, which rules out a literal or
+future Babylon. The reference to the "kings of the
+earth" can once more be understood as referring to the kings of the *land*, which keeps Jerusalem and its authorities
+as being candidates for the Great Harlot. The identification of the Great Harlot as Jerusalem however is confirmed
+by her being name "the great city", since it is the same name given to Jerusalem earlier in
+{{ bible hover Rev 11:8 }}. The fact that it states that this great city "has a kingdom over the kings of the earth"
+{{ bible cite Rev 17:18 }} does not conflict with this identification, since there are two possible solutions for it.
+The first involves taking the meaning of the greek word for "earth", γῆς (gēs), once more as referring to the
+Promised Land. The "kings of the earth" would then be understood as the rulers of Judea, but this is rendered unlikely
+by the details given for these kings in Revelation 18. The second option however
+affirms that "earth" here has a wider scope beyond Judea if the dominion of the Great Harlot can
+be equated with the dominion of Satan. Prior to the Coming of the Son of Man, Satan has dominion over the kingdoms
+of the world {{ bible cite Matt 4:8-9 }}, and at the same time the Great Harlot is clearly Satanically influenced
+{{ bible cite Rev 17:6 }}. Since the Great Harlot would be considered part of Satan's dominion, and since the depravity
+of the Great Harlot is especially unique {{ bible cite Rev 11:8, 17:5 }}, the Great Harlot could be understood as the
+focal point of Satan's dominion and his war against the Lamb, and consequently the kings of the *world* would be
+subordinate to the Great Harlot. The Great Harlot can therefore still remain identified as Jerusalem.
+
+{{ bible block Rev 18:2-3 }}
+
+Here the kings of the earth are paralleled with "the nations", with the nations having the received the *wrath* of her
+sexual immorality, whereas the kings have *commited* sexual immorality with her {{ bible cite Rev 18:3 }}.
+This distinction in the English is less clear in the Greek, so therefore we will assume that both the nations *and* the
+kings of the earth are deemed to have shared in the idolatry of the Great Harlot. The "merchants of the earth" are also
+described as having become wealthy by through her {{ bible cite Rev 18:3 }}, where "earth" clearly refers to the same
+"earth" that the kings are of. The reference to the nations in the same verse confirms that the scope of the "earth"
+is beyond just that of the Judean territory. This by no means contradicts the identification of Jerusalem as the Great
+Harlot, since the event of the Coming of the Son of Man was concerned both ending the deception of the nations by Satan
+{{ bible cite Matt 24:29 }},
+and of executing judgement against the apostates among God's people {{ bible cite Matt 24:15-16 }}. As mentioned before,
+Satan's power of Israel, to the point of crucifying the Lord of glory, necessarily the dominion of Satan and the Beastly
+Kingdom includes Jerusalem. Jerusalem was meant to be a light to the nations {{ bible cite Isa 49:6 }}, and Jerusalem
+was an incredibly powerful and wealthy at the crossroads of the Roman Empire. That Jerusalem had fallen into apostasy,
+and had thus borne God's name into falsehood before the whole known world at that time, means that the sins of Jerusalem
+*did* have a "universal" scope that led others into sin and idolatry, Jew and Gentile alike.
+
+An example of judgement language used by God which equates the judgement of the Jerusalem and the Near East
+with a judgement of the whole "earth" is found in Jeremiah 25:
+
+{{ bible block Jer 25:28-29 }}
+
+{{ ! Reintegrate this argumentation back into the prior "earth" discussions }}
+
+Those who are being offered the cup of the Lord's wrath listed prior in {{ bible hover Jer 25:17-26 }} that are
+referred to as the "earth" span from Egypt through to Mesopotamia. While this judgement manifested in history through
+the onslaught of the Neo-Babylonian Empire and the Empire's eventual subjugation by the Medo-Persian Empire, this
+singular example demonstrates that references to the "remotest parts of the earth"{{ bible cite Jer 25:32 }},
+"all the inhabitants of the earth"{{ bible cite Jer 25:29 }}, "the nations"{{ bible cite Jer 25:31 }},
+can be understood as being local, even being strictly local to the Near East. Consequently, the use of "earth" and
+"all the nations"{{ bible cite Rev 18:3 }} in Revelation 18 can therefore be understood as being local to the focus
+of Revelation 18, which in this case are those who partake in and witness the destruction of the Great Harlot who
+can be strongly identified as Jerusalem.
+
+{{ bible block Rev 18:9-11 }}
+
+{{ bible block Rev 18:15-19 }}
+
+These details also accord with history regarding the destruction of Jerusalem, with the annihilation of one of the
+wealthiest, strongest, and ancient cities in the world being a cataclysmic event that reverberated throughout the
+whole Roman Empire.
+
+{{ bible block Rev 18:24 }}
+
+This is the last portion relevant to the identity of the Great Harlot in Revelation 18. The "all" refers to the
+category of the prophets and saints, the faithful people of God, who have been slain. With "earth" being
+defined as including and exceeding confines of Judea earlier, the bloodguilt for all slain saints is being attributed
+to the Great Harlot. Once more the Great Harlot can be identified as Jerusalem through this, since Jerusalem not only
+crucified Jesus, but exhorted the Roman authorities to persecute Christians across the empire, and applauded them
+for doing so. Consequently, it is justified for the "blood" of the saints to be thought of as being found "in"
+Jerusalem, due to it being the origin of their persecution.
+
+### The Identity of the Fourth Beast and the Little Horn, and the timing of the First Resurrection
+
+As a result of these studies across Daniel and Revelation, the recurring motif of a pair of entities that wage war
+against God and His saints up until the Coming of the Son of Man can be strongly identified as two principalities
+of Rome and Jerusalem. These principalities represented the focal points of Satan's dominion during the Apostolic age,
+and consequently they together represent the fourth and final Beastly kingdom. If the Coming of the Son of Man occurred
+in 70 AD, then the overthrow of the Fourth Beast and the Little Horn that make up the final
+dominion of Satan would correspond with the end of the line of Caesars at the assassination of the first great persecutor
+Nero, and with the Destruction of Jerusalem and the annihilation of the Jewish nation. {{ bible hover Dan 7:12 }}
+also states that the three beasts that preceded the Fourth Beast have their dominions taken away, but they are granted
+an extension of life "for an appointed season of time" *beyond* the Coming of the Son of Man in
+{{ bible hover Dan 7:13 }}. While the preceding beasts are identified as the historical kingdoms of the Neo-Babylonian,
+Medo-Persian, and Greek empires, the stripping of the dominions from these beasts means that we shouldn't understand
+these surviving beasts as geographic empires, but that vestiges and rebellion of prior wordly kingdoms would be allowed
+to persist during the reign of the Messiah. Importantly, the Beast of the Sea in {{ bible hover Rev 13:1-2 }} is
+depicted as the convergence of each of the four Beasts of Daniel 7, so based off {{ bible hover Dan 7:12 }} an aspect
+of the Beast of the Sea would have survived its defeat. Consequently, if the defeat of Fourth Beast and the Beast of
+the Sea is to be identified with the end of the Caesars in 68 AD, then the survival of the Roman Empire out of the
+subsequent civil war and the victory of Vespasian can be understood as the manifestation of the lesser beastly powers
+that were permitted to endure beyond the Coming of the Son of Man, since the Roman Empire never regained the glory
+and divine status of the Pax Romana under the rule of the Caesars.
+
+Now that we have identified confidently the Fourth Beast and the Little Horn, we can return to the matter of the
+First Resurrection. The defeat of the Fourth Beast and the Little Horn and the chaining of Satan mark the inauguration
+of the Millennium {{ bible cite Rev 20:2 }}, and the inauguration of the Millennium in turn also marks the
+First Resurrection {{ bible cite Rev 20:4-6 }}. We therefore come to the matter of defining the First Resurrection.
+
+The clearest passage regarding the First Resurrection is found in Revelation 20:
+
+{{ bible block Rev 20:4-6 }}
+
+The author of Revelation stating that he "saw thrones", and that "*they* sat on them", is a direct allusion to
+Daniel 7:
+
+{{ bible block Dan 7:9-10 }}
+
+The thrones are set up before the Ancient of Days and prior to the Coming of the Son of Man in
+{{ bible hover Dan 7:13 }}, and the heavenly court are the "they" in {{ bible hover Rev 20:4 }} who sit on the thrones
+that are set up {{ bible cite Dan 7:10 }}. Once "they" are seated, and the books are opened, the Fourth Beast and
+the Little Horn are *then* destroyed {{ bible cite Dan 7:11 }}. When the thrones are set up in {{ bible hover Rev 20:4 }}
+the Beast and the False Prophet have already been destroyed in {{ bible hover Rev 19:20 }}, so this scene that the
+author of Revelation "saw" in {{ bible hover Rev 20:4 }} is another view of this moment in Revelation 19.
+This scene involves Christ vindicating the martyrs who endured the Beast and the False Prophet by granting them the
+First Resurrection. This occurs at the Coming of the Son of Man, based off {{ bible hover 1 Cor 15:23 }}. This also
+accords with the sequence of events in {{ bible hover Dan 7:12-13 }} with the Coming of the Son of Man occurring
+immediately after the thrones are set up for judgement against the Fourth Beast and the Little Horn.
+This First Resurrection is identical in quality with Christ's Resurrection, that being a physical and immortal
+resurrection {{ bible cite 1 Cor 15:23, Rev 20:4 }}. Those who receive the First Resurrection then reign with
+Christ throughout the Millennium {{ bible cite Rev 20:6 }}. Those who receive the First Resurrection however are
+*only* those martyred or resisted taking the Mark of the Beast while the Beast and the False Prophet were *still alive*.
+Since the Beast and the False Prophet were destroyed by 70 AD, the recipients of the First Resurrection *must* have
+at least been the Christians of the Apostolic era. How can it be said however that the Apostolic Christians received the First
+Resurrection when their bones are still amongst us to this day? The bones of the Apostle Peter still lies beneath the
+Vatican, for example. Our answer to this is that it is not necessary for the bodies of a Christian to be
+physically raised out of the ground for the soul of the Christian to be resurrected with an immortal body. Christ's
+resurrection was unique in how His crucified body was raised immortal, along with His wounds, and He retained that
+immortal but wounded body when He ascended into heaven {{ bible cite Luke 24:51, Rev 5:6 }}. However, the promise
+of immortal resurrection for the Christian is not that their wounds are retained {{ bible cite Rev 21:4, 22:3 }} -
+the martyrs who were beheaded in {{ bible hover Rev 20:4 }} will not remain headless at their resurrection. Instead,
+the Christian "puts on the incorruptible" and "puts on immortality" {{ bible cite 1 Cor 15:53 }}, and their
+mortal body is likened to a seed that is "sown in weakness", and "raised in power" {{ bibe cite 1 Cor 15:43 }}.
+Importantly, {{ bible hover 1 Cor 15:44 }} states a "natural body" is sown, and "it is raised a spiritual body" of
+a very different substance. Consequently, the mortal body of the Christian does not need to be integrated into the
+immortal body their soul receives. With this understanding of Christian Resurrection applied to the First Resurrection,
+if the First Resurrection occurred at the Coming of the Son of Man, then the souls of Apostolic Christians such as the
+Apostle Peter could have received their physical resurrection *without* their mortal bodies having to leave the ground.
+Where, then, does the First Resurrection takes place? The answer is also found in {{ bible hover Rev 20:4 }}. Just
+as the direct reference to {{ bible hover Dan 7:9 }} has the thrones being set up *in heaven*, the souls of the
+Apostolic Christians are also seen and are raised to life *in heaven*. Just as the physical man Christ Jesus stands
+before the Father *in heaven* {{ bible cite 1 Tim 2:5 }}, so can His martyrs in physical form. Consequently, the
+First Resurrection can be understood as taking place entirely in heaven.
+
+##{{ label millennium }} The Millennium
+
+{{ bible block 1 Cor 15:20-26 }}
+
+To argue that the Coming of the Son of Man occurred at the Destruction of Jerusalem in 70 AD, we also have to argue
+that the Millennium also began in 70 AD. First of all, we must define the Millennium based off the clearest passages
+that refer to it.
+
+{{ bible block Rev 20:1-3 }}
+
+Aside from the First Resurrection, the beginning of the Millennium is identified with the binding of Satan
+{{ bible cite Rev 20:2 }}. Satan is thrown and sealed within the Abyss "so that he would not deceive the nations any
+longer, until the thousand years were finished" {{ bible cite Rev 20:3 }}. The Abyss has previously been identified
+in {{ bible hover Rev 17:8,15 }} as the nations that revolt against God, and this understanding can apply here due to
+the purpose of Satan's binding is prevent him from deceiving the nations, which represents only a partial limitation
+of his power. Satan's prior deceit of the nations before this point is meant to be contrasted with the
+advance of the Gospel and the Kingdom of Heaven {{ bible cite Matt 24:14 }}, and he is bound so that it advance of the
+Gospel is successful. It can be inferred from this passage however that even though he may be powerless before
+the advance of the Gospel during the Millennium, Satan himself is not powerless within the Abyss that consist of the
+Children of Wrath. The Apostle Peter's comparison of Satan to a prowling and devouring lion in
+{{ bible hover 1 Pet 5:8 }} for example would still be applicable of him within the Abyss during the Millennium,
+with Satan still being capable of sowing chaos amongst the nations as seen in this present day.
+
+The only other detail given in Revelation 20 regarding the nature of the Millennium are those related to the receivers
+of the First Resurrection reigning with Christ and ministering as priests before Him throughout the entire Millennium
+{{ bible cite Rev 20:6 }}. While the nature of this reign and ministry of First Resurrection Christians during the
+Millennium is mysterious, but the nature of Christ's reign during the Millennium is clear:
+
+{{ bible block Psa 2:1-12 }}
+
+{{ bible block Psa 110:1-7 }}
+
+What each of these central Messianic psalms make clear is that Christ's reign is in the midst of actively rebellious
+nations who yet fall within His possession {{ bible cite Psa 2:8, 110:2 }}. These details of the Messianic reign also
+further reinforce that the Coming of the Son of Man is not meant to mark the end of history but the beginning of process
+of all the nations yielding to Him.
+
+{{ bible block 1 Cor 15:23-28 }}
+
+Paul builds upon {{ bible hover Psalm 110:1 }} by stating that *after* the Coming of the Son of Man and the First
+Resurrection {{ bible cite 1 Cor 15:23 }}, this process of abolishing the powers and authorities of the world begins
+until the last enemy Death is abolished {{ bible cite 1 Cor 15:25-26 }}, which would mark the Second Resurrection
+immediately after the end of the Millennium {{ bible cite Rev 21:4 }}.
+
+The centre-point of the Messiah's reign in the Psalms is also identified as Zion {{ bible cite Psa 2:6, 110:2 }}, which
+in the New Testament context is to be understood as the Heavenly Jerusalem {{ bible cite Mat 28:18, Rev 21:10 }}.
+Christ therefore rules over the nations from heaven during the Millennium, and the centre of Christ's reign only
+transfers to Earth after the Millennium and the Second Resurrection, as seen in {{ bible hover Rev 21:1-4 }}.
+
+Interestingly, in {{ bible hover Rev 21:1 }} there is a reference to the creation of a new heavens and a new earth that
+is drawn from {{ bible hover Isa 65:17 }}, but these new heavens and new earths are very different between Revelation
+and Isaiah, the most significant of them being that death is present in Isaiah's version {{ bible cite Isa 65:20 }},
+whereas it is abolished in Revelation's version {{ bible cite Rev 21:4 }}. These should therefore be understood as two
+different sets of new heavens and earth, which accords with there being two ages promised in Revelation of the
+Millennium *before* the Second Resurrection and the Eternity *after* the Second Resurrection. The relevant passage
+from Isaiah 65 that would therefore correspond with the Millennium is found below:
+
+{{ bible block Isa 65:17-24 }}
+
+If we to understand ourselves as Christians who are living *in* the Millennium, then this vision of the Kingdom of
+Heaven may appear Utopian and distant. But when understood in light of Christ's parables of the Kingdom of Heaven
+being comparable to a mustard seed and leaven, Isaiah's vision can be understood as the *full* manifestation of the
+Kingdom of Heaven over time by the end of the Millennium. Even as Christians of the present day, all can attest that
+the advancement of Christianity up until this point in history has resulted in an unmatched level of prosperity,
+life and justice, even if there have been active and successful attempts to undo that progress in recent times. Isaiah
+65 should therefore be understood as a glimpse of the world by the end of the Millennium, prior to the releasing of
+Satan:
+
+{{ bible block Rev 20:7-10 }}
+
+Satan at the end of the Millennium is released by God to deceive the nations again like he was capable of prior to the
+Millennium. The nations that he deceives are drawn from the farthest parts of the earth and are equated with Gog and
+Magog from Ezekiel 38 and 39, and the details given for how they are gathered for war, are innumerable in number,
+march against Jerusalem, and are finally destroyed by a supernatural act of God {{ bible cite Rev 20:8-9 }} match
+perfectly with the details given in Ezekiel. Relevant to the nature of the Millennium, Ezekiel 38 provides extra
+details regarding the inhabitants of Jerusalem "in the last years" who are gathered out of "the peoples" after
+the land of Israel had been for the longest time a "continual waste", and were all now "living securely" after having
+been "restored from the sword"
+{{ bible cite Eze 38:8 }}, dwelling "quietly" in villages without bars, walls, or gates {{ bible cite Eze 38:11 }}.
+This description of the inhabitants of Jerusalem accords perfectly with the description of the same inhabitants
+in {{ bible hover Isa 65:18-19 }} by the end of the Millennium. In regards to whether the Jerusalem being
+referred to in Ezekiel 38, Isaiah 65, and Revelation 20 represents the Church or a restored earthly Jerusalem, Romans 11
+opens the door to an earthly Jerusalem and the Promised Land being restored *after* the "fullness of Gentiles has come
+in" and "all Israel" are saved by the Gospel {{ bible cite Rom 11:25-26 }}. We do not believe the present day
+State of Israel is
+the fulfillment of this restored earthly Jerusalem and a Promised Land, since neither of the conditionals laid out
+in Romans 11 have been accomplished, but by the end of the Millennium it could be a reality that is central to the
+release of Satan and its aftermath.
+
+The final detail provided in Revelation 20 regarding the end of the Millennium is the destruction of Satan after the
+annihilation of Gog and Magog {{ bible cite Rev 20:10 }}. Satan joins the Beast and the False Prophet in the Lake of
+Fire, which is a data-point is useful for reinforcing that the destruction of the Beast and the False Prophet in 70 AD
+and the destruction of Satan bookend the Millennium. In all, the picture that is painted of the Millennium across these
+primary texts accords strongly with the imagery in {{ bible hover Dan 2:34-35 }} of the Stone Cut Without Hands toppling
+the Statue, representing the initial vindication and triumph of the Coming of the Son of Man, becoming then a "great
+mountain" that "filled the whole earth", a process that reaches the final state of peace, prosperity, and true religion
+depicted in Isaiah's new heavens and earth, before the final chapter of Satan's release commences. While the rate and
+trajectory of progress between these start and end points of history is not defined, the state of these start and end
+points are.
+
+## The Second Resurrection
+
+{{ bible block Rev 20:11-15 }}
+
+The Second Resurrection immediately follows the destruction of Satan in {{ bible hover Rev 20:10 }}. All those who
+did not receive the First Resurrection in {{ bible hover Rev 20:4 }} are physically resurrected at this point in time,
+as according to {{ bible hover Rev 20:5 }}. In contrast with the First Resurrection, the Second Resurrection clearly
+takes place on Earth as Christ and His throne descend and earth and heaven flee before Him {{ bible cite Rev 20:11 }}.
+Those who are judged are receive eternal life or eternal damnation, according to whether their name is found written
+in the Book of Life {{ bible cite Rev 20:15 }}. While we have up until this point been describing the Beast, False
+Prophet, and Satan as being "destroyed" when thrown into the Lake of Fire, the persistence of the Beast and the
+False Prophet within the Lake of Fire when Satan is thrown in suggests eternal torment rather than annihilation
+{{ bible cite Rev 20:10 }}. The Second Resurrection would also be identical to the First Resurrection in terms of
+granting an immortal resurrection to both the condemned and the redeemed, since the Second Resurrection is only
+distinguished from the First Resurrection in {{ bible hover Rev 20:5 }} according to *when* it takes place and *who*
+receives it. A parallel description of the Second Resurrection is found at the beginning of Daniel 12:
+
+{{ bible block Dan 12:1-3 }}
+
+An interesting detail of {{ bible hover Dan 12:2 }} is that it does not say *all* "who sleep in the dust of the ground
+will awake", but "many". This distinction can be understood in light of the First Resurrection already having taken
+place before the End of Days in Daniel 12. The "many" then similarly receive everlasting life or contempt after they
+are judged. For one to undergo everlasting contempt after their resurrection, they necessarily need to receive
+immortality, even though they are thrown into the Lake of Fire and undergo the Second Death {{ bible cite Rev 20:13 }}.
+Consequently, the *quality* of resurrection both the condemned and redeemed received is the same.
+
+The Second Resurrection then ends with Death and Hades being the last realms or curses to be thrown into the Lake of
+Fire. This accords once more with the timeline provided by Paul in 1 Corinthians 15:24-28 when he says:
+
+{{ bible block 1 Cor 15:24-28 }}
+
+There is potentially another reference to the Second Resurrection in 1 Corinthians 15:50-57:
+
+{{ bible block 1 Cor 15:50-57 }}
+
+Paul specifically refers to the "last trumpet" in {{ bible hover 1 Cor 15:52 }}, which is a key part of the "mystery"
+that Paul received {{ bible cite 15:51 }}. It being a "mystery" suggests that Paul received only partial revelation
+concerning the End of the Age and the Age to Come.
+Considering that the Book of Revelation was intended to be the final and clearest explanation
+for what had been prior to it only partial revelations received by the Church concerning the Coming of the Son of Man
+and beyond {{ bible cite 1 Cor 13:8-12 }}, we must interpret this "mystery" in light of the Book of Revelation.
+Consequently, when Paul speaks about the "last trumpet" alongside the alive and dead putting on "immortality", then
+we should understand this as him describing the Second Resurrection, since nowhere else is the
+First Resurrection referred to as being the "last" action in history, and the "dead" and the alive here who are
+resurrected encompasses all of humanity, as opposed to the First Resurrection being strictly applied to the dead in
+Christ.
+
+## The Rapture
+
+These discussions of Paul in relation to the Second Resurrection cannot continue without dealing with key Rapture texts
+such as 1 Thessalonians 4:13-18, whose common interpretation appears to contradict the timeline of the
+First and Second Resurrection:
+
+{{ bible block 1 Thessalonians 4:13-18 }}
+
+Here Paul states that here he is conveying "the word of the Lord" {{ bible cite 1 Thess 4:15 }} directly, which could
+be the same as the "mystery" revealed to him in {{ bible cite 1 Cor 15:51 }}, since both of these revelations are
+concerned with resurrection. The First Resurrection is once more stated as occurring at the Coming of the Son of Man
+when he says "the dead in Christ will rise first" {{ bible cite 1 Thess 4:15-16 }}, matching
+{{ bible hover 1 Cor 15:23 }}. Paul then goes on to discuss what will happen to those who are alive and remaining
+*after* the Coming of the Son of Man. Paul interestingly notes that *after* Christ descends from heaven {{ bible cite
+1 Thess 4:16 }}, He still remains "in the air" {{ bible cite 1 Thess 4:17 }}, which reinforces the case that the
+Coming of the Son of Man occurs entirely in heaven, with the descent mentioned by Paul being the Son of Man descending
+on the "clouds of heaven" to receive the Kingdom from the Ancient of Days in {{ bible hover Dan 7:13 }}. In
+{{ bible hover 1 Thess 4:14 }}, Paul also states that God will bring with Him "those who have have fallen asleep in
+Jesus", which are the recipients of the First Resurrection, which means the First Resurrection has already occurred,
+and therefore the descent of God being described must the Great White Throne scene of {{ bible hover Rev 20:11 }} that
+corresponds with the Second Resurrection. Paul makes this distinction same between the Son and the Father in
+{{ bible hover 1 Cor 15:23-24 }} when he discusses "Christ" handing over the kingdom "to the God and Father" at the
+Second Resurrection.
+Pauls primary point in this passage is that those who are alive will *not* precede the dead who receive the
+First Resurrection at the Coming of the Son of Man. It would be a mistake to interpret this passage as stating that
+those who are alive receive the resurrection immediately after those who receive the First Resurrection, since it
+would not only contradict the timeline of the {{ bible hover Rev 20:5 }}, but it would diminish the significance of the
+reward of the First Resurrection for the dead in Christ at His coming if those who are alive receive it immediately
+after. Everything else that is described in {{ bible hover 1 Thess 4:17-18 }} must therefore pertain to either
+Millennium or the Second Resurrection. Paul does not explicitly discuss the resurrection of those "who are alive
+and remain" in this portion unlike his discussion of the Second Resurrection in {{ bible hover 1 Cor 15:50-57 }},
+which leads to believe that it is the Millennium in view. The language of those remaining being "caught up" (raptured)
+in {{ bible hover 1 Thess 4:17 }} has its only parallel found in the Olivet Discourse:
+
+{{ bible block Mat 24:31 }}
+
+The angels who go out to "gather" are sent out after the "great trumpet", which matches the rapture occurring after
+the "trumpet of God". The gathering should therefore be equated to the rapture. However, we have already established
+that {{ bible hover Mat 24:31 }} marks the very beginning of the Millennium, and that the gathering of the elect is
+therefore the beginning of a process. Consequently, the rapture must also be referring to this same process within
+the Millennium. Also, since there is no resurrection in view in {{ bible 1 Thess 4:17 }}, and that the designation of
+those "who are alive and remain" refers to those live past the Coming of the Son of Man who are not themselves exempt
+from death during the Millennium, then them meeting "the Lord in the air" as well as "them" who received the First
+Resurrection should be understood as the *souls* of Christians being gathered to Christ in heaven over the course
+of the Millennium leading up to the Second Resurrection, whereas prior to the Coming of the Son of Man all the
+souls of the faithful were gathered with Abraham in Hades {{ bible cite Luke 16:23 }}.
+
+The other key Rapture text is found in 2 Thessalonians 2:
+
+{{ bible block 2 Thess 2:1-12 }}
+
+In {{ bible hover 2 Thess 2:1 }} we have another reference to the "gathering" that follows the Coming of the Son of
+Man, which confirms the link between the Rapture and the gathering in mentioned in {{ bible hover Mat 24:31 }}. As
+for the other details provided for the signs leading up to the Coming of the Son of Man, particularly the Man of
+Lawlessness {{ bible cite 2 Thess 2:3 }}, they can be strongly identified in history leading up to 70 AD and the
+Destruction of Jerusalem. Firstly, "the apostasy" can be equally rendered "the falling away" or "the rebellion", which
+can be understood simultaneously as the abandonment and betrayal of the faith by previously professing Christians
+that Christ warned about in {{ bible hover Mat 24:9-13 }}, or as a political and armed rebellion. The likelihood of it
+referring to a political rebellion is bolstered by the apostasy being associated with revealing of the Man of
+Lawlessness. The contrast of this Man against lawfulness immediately brings the Law of Moses into view, and
+subsequently, the rebellion of Judah, the First Jewish War beginning in 66 AD, as well. A key part of the Man of
+Lawlessness' identity is also that he seats himself within the Second Temple, thereby exalting himself in his blasphemy
+{{ bible cite 2 Thess 2:4 }}. In history there can be no doubt that the Man of Lawlessness can be identified as
+John of Gischala, the false Messiah who led and tyrannized Jerusalem during the First Jewish War, who induced
+Jerusalem's false prophets to proclaim their ultimate deliverance by God and victory over the Romans
+{{ cite jewish-war[book: 6, verse: 286] }}, and who
+made his headquarters and his seat *within* the Second Temple until Jerusalem was overthrown by Titus in
+70 AD. Paul, writing 2 Thessalonians in the early 50's AD, states that the Thessalonian church "know what restrains
+him now, so that in his time he will be revealed" {{ bible cite 2 Thess 2:6 }}, meaning that this Restrainer which
+held back the Man of Lawlessness was no mystery for them. This Restrainer is then stated as holding back "lawlessness"
+only until the Restrainer itself is taken out of the way {{ bible cite 2 Thess 2:7 }}, which could mean that it either
+unleashes it willingly or is overwhelmed by it. In the context of what led up to the First Jewish War, this Restrainer
+could be understood the remnant of the leadership in Judah that were zealous for the Law but did everything in their
+power to prevent Judah from rebelling against Rome and igniting a war they could never win. Flavius Josephus would then
+be considered one of the restrainers by this definition, until the rebellion grew beyond his control and he willingly
+joined it out of his love for Judah but against hope of victory. We therefore identify the Restrainer as those Paul
+described in {{ bible hover Rom 10:1-3 }} as those "have a zeal for God, but not according to knowledge".
+Lastly, the slaying of the Man of Lawlessness by the Coming of the Son of Man can be understood as John of Gischala and
+his followers being captured and paraded in chains through streets of Rome by Titus where he died in captivity
+{{ cite jewish-war[book: 7, verse: 3] }}. We therefore
+conclude confidently from this text that the Rapture should be understood as the gathering of God's elect "from the
+four winds" {{ bible hover Mat 24:31 }} that *commenced* following the Destruction of Jerusalem and the
+Coming of the Son of Man in 70 AD.
+
+# Conclusion
+
+{{ bible block Rev 21:1-4 }}
+
+In conclusion, approaching Christ's words in {{ bible hover Mat 24:34 }} in combination with the Book of Revelation as
+if they were intended to be sources of clarity instead of confusion results in coherent timeline for the End of the Age
+and the Age to Come. The timeline that has been presented in this study ends up according closely with the common form
+of Postmillennialism with some variations in regards to how the First Resurrection is understood, the identification
+of the Beast of the Book of Revelation, and the identity of Man of Lawlessness. This proposed variant of
+Postmillennialism insists upon the Coming of the Son of Man and the First Resurrection as occurring in 70 AD as the
+fulfillment of Christ's prophecy in the Olivet Discourse, and that as present-day Christians living currently in the
+Millennium we are part of the work of the King Jesus putting "all His enemies under His feet"
+{{ bible cite 1 Cor 15:25 }} up until the day of the Second Resurrection and the death of Death. As for a name for
+this proposed variant, Postmillennialism inherently causes confusion. Literally meaning "after the Millennium", it's
+name in isolation sounds as if it is a position that defends that we are presently living *after* the Millennium to
+mirror to how Premillennialism defends that we presently live *before* the Millennium. Even though Postmillennialism
+actually defends that we *presently* live in the Millennium, the name is still explained as meaning that Second Coming
+of Christ occurs at the end of the Millennium. This too causes confusion though, because it defends at the same time
+that the Coming of the Son of Man occurred in 70 AD. The name of Amillennialism similarly causes confusion, since it
+literally means "no Millennium", even though it too defends that we presently live in the Millennium. Since
+Premillennialism is the only position with a name that unambiguously represents what it defends, we propose that the
+new name *Intramillennialism* should be used to represent our position, literally meaning "within the Millennium".
+
+We believe that defending Intramillennialism benefits not only apologetics in demonstrating the fulfillment of the Olivet
+Discourse and the Book of Revelation precisely as Jesus prophesied, but also many other areas of Biblical theology.
+One area that it is immediately relevant for is its ability to counter Charismatic theology that insists that the
+Apostolic and Prophetic gifts are being poured out on the Church now that the End of the Age and the Coming of the Son
+of Man is imminent. In response, not only does Intramillennialism
+agree with Peter in {{ bible hover Acts 2:16 }} that the Prophet Joel's prophecy in {{ bible hover Joel 2:28-29 }} for
+the End of the Age was fulfilled at Pentecost, but it is able to demonstrate from {{ bible hover 1 Cor 13:8-12 }}
+that the Apostolic and Prophetic gifts ceased upon the Coming of the Son of Man
+("the perfect" {{ bible cite 1 Cor 13:10 }}) after 70 AD, which accords with the surviving testimony of early Church
+history from the second century onwards of there being no Apostolic and Prophetics gifts that matched what was
+experienced during the Apostolic era. Intramillennialism, exactly like Postmillennialism, also provides a hope for the
+future of this age that is not present in Pre or Amillennialism, with the clear optimistic endpoint of the Millennium
+reinforcing the Calvinistic claim that God and His people will succeed their mission, regardless of the attempts of
+man or spirit to thwart it. This too provides hope for Christians that are enduring and losing their lives to the
+remaining evil in the world. While there remain key foundational assumptions that this argument for Intramillennialism
+is heavily dependent on, with the dating and authorship of the Book of Revelation being particularly critical, this
+will be defended elsewhere. We hope that Intramillennialism provides a consistent and coherent way of comprehending
+the Bible, the End of the Age, the Age to Come, and our present day place in history.

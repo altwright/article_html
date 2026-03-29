@@ -1259,7 +1259,7 @@ void body_to_html(
 
                 str_append(out_html, "<span class=\"bible-cite\">");
                 str_append(out_html, "<sup class=\"bible-cite-symbol\">\u271d</sup>");
-                str_append(out_html, "<span class=\"bible-cite-refs hidden\"");
+                str_append(out_html, "<span class=\"bible-cite-refs hidden\">");
 
                 const BiblePassages *passages = &current_tk->data.bible_cite.passages;
 

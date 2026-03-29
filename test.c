@@ -12,7 +12,7 @@
 int main(int argc, char **argv) {
     article_init("./data/lsb.csv");
 
-    ArticleData data = article_parse("data/draft_1.xmd");
+    ArticleData data = article_parse("data/article.xmd");
     if (data.body_html) {
         printf("%s\n", data.body_html);
     }
