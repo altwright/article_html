@@ -28,6 +28,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(UNORDERED_LIST) \
     X(ORDERED_LIST) \
     X(LABEL) \
+    X(LABEL_DISPLAY) \
     X(BIBLE_BLOCK) \
     X(BIBLE_HOVER) \
     X(BIBLE_CITE) \
@@ -63,8 +64,13 @@ typedef TextTokenData BoldTextTokenData;
 
 typedef struct LABEL_TOKEN_DATA_T {
     string name;
-    i64 ref_count;
 } LabelTokenData;
+
+typedef struct LABEL_DISPLAY_TOKEN_DATA_T {
+    string_view id;
+    string_view text;
+    i64 end_c_idx;
+} LabelDisplayTokenData;
 
 typedef struct BIBLE_BLOCK_TOKEN_DATA_T {
     BiblePassages passages;
@@ -110,6 +116,7 @@ typedef struct ARTICLE_TOKEN_T {
         ItalicTextTokenData it_text;
         BoldTextTokenData bold_text;
         LabelTokenData label;
+        LabelDisplayTokenData label_display;
         BibleBlockTokenData bible_block;
         BibleHoverTokenData bible_hover;
         BibleCiteTokenData bible_cite;
@@ -122,7 +129,7 @@ typedef struct ARTICLE_TOKENS_T {
 } ArticleTokens;
 
 typedef struct LABELS_MAP_T {
-    HASHMAP_FIELDS(const char*, bool)
+    HASHMAP_FIELDS(const char*, string_view)
 } LabelsMap;
 
 typedef struct CITE_KEY_SEEN_MAP_T {
@@ -166,7 +173,7 @@ static const char *kMetablockStartDelimiter = "{{";
 static const char *kMetablockEndDelimiter = "}}";
 static const char *kMetablockLabelKey = "label";
 
-static int SortMallocStrings(const void* left, const void* right) {
+static int SortMallocStrings(const void *left, const void *right) {
     u64 left_count = strlen(left);
     u64 right_count = strlen(right);
     u64 min_count = left_count < right_count ? left_count : right_count;
@@ -243,9 +250,9 @@ static bool label_get_metablock(
         return false;
     }
 
-    bool exists = HASHMAP_GET_VAL(in_labels_map, &terms.data[1].data);
+    string_view display_str = HASHMAP_GET_VAL(in_labels_map, &terms.data[1].data);
 
-    if (exists) {
+    if (display_str.data) {
         return false;
     }
 
@@ -412,7 +419,7 @@ void body_to_html(
     ARRAY_MAKE(&tks);
 
     LabelsMap existing_labels = {HASHMAP_TYPE_STR_KEY};
-    bool default_label_val = false;
+    string_view default_label_val = {};
     HASHMAP_MAKE(&existing_labels, &default_label_val);
 
     bool lsb_bible_quoted = false;
@@ -481,6 +488,8 @@ void body_to_html(
                                 ARTICLE_TOKEN_TYPE_LABEL
                             };
                             label_open_tk.data.label = label_tk_data;
+
+                            HASHMAP_PUT(&existing_labels, &label_tk_data.name.data, &line_view);
 
                             ARRAY_PUSH(&tks, &label_open_tk);
 
@@ -789,6 +798,36 @@ void body_to_html(
 
                                             break;
                                         }
+                                        case METABLOCK_KEY_LABEL: {
+                                            if (metablock_data.val_strs.len < 2) {
+                                                break;
+                                            }
+
+                                            string_view label_id = metablock_data.val_strs.data[1];
+                                            string label_id_str = str_make_view(arena, &label_id);
+
+                                            string_view label_name_str = HASHMAP_GET_VAL(
+                                                &existing_labels,
+                                                &label_id_str.data
+                                            );
+
+                                            if (!label_name_str.data) {
+                                                break;
+                                            }
+
+                                            i64 end_c_idx = c_idx
+                                                            + metablock_data.range.end_c_idx
+                                                            + (i64) strlen(kMetablockEndDelimiter);
+
+                                            open_tk.type = ARTICLE_TOKEN_TYPE_LABEL_DISPLAY;
+                                            open_tk.data.label_display.id = label_id;
+                                            open_tk.data.label_display.text = label_name_str;
+                                            open_tk.data.label_display.end_c_idx = end_c_idx;
+
+                                            new_tk = true;
+
+                                            break;
+                                        }
                                         default:
                                             break;
                                     }
@@ -976,6 +1015,30 @@ void body_to_html(
 
                         break;
                     }
+                    case ARTICLE_TOKEN_TYPE_LABEL_DISPLAY: {
+                        ArticleToken close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            ARTICLE_TOKEN_TYPE_LABEL_DISPLAY
+                        };
+
+                        ARRAY_PUSH(&tks, &close_tk);
+
+                        ArticleToken reg_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                        };
+
+                        reg_open_tk.data.reg_text.start_line_idx = line_idx;
+                        reg_open_tk.data.reg_text.start_c_idx = current_open_tk->data.label_display.end_c_idx;
+                        reg_open_tk.data.reg_text.text = str_make(arena, "");
+
+                        current_open_tk_idx = tks.len;
+                        ARRAY_PUSH(&tks, &reg_open_tk);
+
+                        line_idx--;
+
+                        break;
+                    }
                     default: {
                         current_open_tk_idx = -1;
                         break;
@@ -1052,8 +1115,31 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_HEADING: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
+                i64 closing_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(closing_tk_idx >= 0);
+
+                LabelTokenData *label_data = nullptr;
+                if (closing_tk_idx - current_tk_idx > 1) {
+                    i64 next_tk_idx = current_tk_idx + 1;
+                    ArticleToken *next_tk = ARRAY_ELEM(&tks, &next_tk_idx);
+
+                    if (next_tk->paren == TOKEN_PAREN_OPEN && next_tk->type == ARTICLE_TOKEN_TYPE_LABEL) {
+                        label_data = &next_tk->data.label;
+
+                        string_view label_display_name = {
+                            current_tk->data.heading.text.data,
+                            current_tk->data.heading.text.len
+                        };
+                        HASHMAP_PUT(&existing_labels, &label_data->name.data, &label_display_name);
+                    }
+                }
+
                 i32 heading_level = current_tk->data.heading.level;
-                str_append(out_html, "<h%d>", heading_level);
+                str_append(out_html, "<h%d", heading_level);
+                if (label_data) {
+                    str_append(out_html, " id=\"%s\"", label_data->name.data);
+                }
+                str_append(out_html, ">");
                 str_append(out_html, "%s", current_tk->data.heading.text.data);
                 str_append(out_html, "</h%d>", heading_level);
 
@@ -1292,9 +1378,24 @@ void body_to_html(
                         "</sup>",
                         unique_cite_idx,
                         unique_cite_idx,
-                        unique_cite_idx
+                        unique_cite_idx + 1
                     );
                 }
+
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_LABEL_DISPLAY: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                str_append(
+                    out_html,
+                    "<a class=\"label\" href=\"#" SV_FMT "\">",
+                    SV_DATA(&current_tk->data.label_display.id)
+                );
+                str_append(out_html, SV_FMT, SV_DATA(&current_tk->data.label_display.text));
+                str_append(out_html, "</a>");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
@@ -1308,6 +1409,7 @@ void body_to_html(
     }
 
     if (!ARRAY_EMPTY(&cite_strs)) {
+        str_append(out_html, "<h1>Footnotes</h1>");
         str_append(out_html, "<ol class=\"cite-footnotes\">");
 
         for (i64 cite_idx = 0; cite_idx < cite_strs.len; cite_idx++) {
@@ -1321,15 +1423,16 @@ void body_to_html(
 
     i64 cite_keys_seen_len = HASHMAP_LEN(&cite_keys_seen);
     if (cite_keys_seen_len > 0) {
+        str_append(out_html, "<h1>Bibliography</h1>");
         str_append(out_html, "<ul class=\"cite-bibliography\">");
 
         MallocStrings bib_strs = {arena, 0, cite_keys_seen_len};
         ARRAY_MAKE(&bib_strs);
 
         HASHMAP_FOR(seen_cite_pair, &cite_keys_seen) {
-            const char* cite_key = seen_cite_pair->key;
+            const char *cite_key = seen_cite_pair->key;
 
-            char* cite_bib_html = bib_create_bib_entry_html(
+            char *cite_bib_html = bib_create_bib_entry_html(
                 cite_key,
                 CITE_STYLE_CHICAGO
             );
@@ -1353,13 +1456,13 @@ void body_to_html(
 
     if (lsb_bible_quoted) {
         str_append(out_html,
-            "<p class=\"copyright-footer\">"
-                "“Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
-                "Copyright © 2021 by The Lockman Foundation. Used by permission. All rights reserved. "
-                "Managed in partnership with Three Sixteen Publishing Inc.&nbsp;"
-                "<a href=\"http://lsbible.org/\">LSBible.org</a>&nbsp;and&nbsp;"
-                "<a href=\"http://316publishing.com/\">316publishing.com</a>.”"
-            "</p>"
+                   "<p class=\"copyright-footer\">"
+                   "“Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
+                   "Copyright © 2021 by The Lockman Foundation. Used by permission. All rights reserved. "
+                   "Managed in partnership with Three Sixteen Publishing Inc.&nbsp;"
+                   "<a href=\"http://lsbible.org/\">LSBible.org</a>&nbsp;and&nbsp;"
+                   "<a href=\"http://316publishing.com/\">316publishing.com</a>.”"
+                   "</p>"
         );
     }
 
