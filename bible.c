@@ -473,7 +473,10 @@ string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage) {
         && passage.ch_v.chapter > 0) {
         string ref_str = bible_passage_ref_to_str(arena, passage);
 
-        str_append(&out_html, "<span class=\"bible-hover-ref\">");
+        str_append(
+            &out_html,
+            "<span class=\"bible-hover-ref\" _=\"on hover call OnBibleRefHover()\">"
+        );
         str_append(&out_html, "%s", ref_str.data);
         str_append(&out_html, "</span>");
 

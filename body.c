@@ -1222,7 +1222,7 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_BIBLE_HOVER: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
-                str_append(out_html, "<span class=\"bible-hover\">");
+                str_append(out_html, "<span class=\"bible-hover\" >");
 
                 const BiblePassages *passages = &current_tk->data.bible_hover.passages;
                 Arena tmp = arena_make(512 + 64 * passages->len);
@@ -1246,8 +1246,13 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_BIBLE_CITE: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
-                str_append(out_html, "<span class=\"bible-cite\">");
+                str_append(
+                    out_html,
+                    "<span class=\"bible-cite\" _=\"on hover call OnBibleCiteHover()\">"
+                );
+
                 str_append(out_html, "<sup class=\"bible-cite-symbol\">\u271d</sup>");
+
                 str_append(out_html, "<span class=\"bible-cite-refs hidden\">");
 
                 const BiblePassages *passages = &current_tk->data.bible_cite.passages;
@@ -1266,6 +1271,7 @@ void body_to_html(
                 }
 
                 str_append(out_html, "</span>");
+
                 str_append(out_html, "</span>");
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
