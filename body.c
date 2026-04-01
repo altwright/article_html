@@ -1248,7 +1248,7 @@ void body_to_html(
 
                 str_append(
                     out_html,
-                    "<span class=\"bible-cite\" _=\"on mouseenter call OnBibleCiteHover()\">"
+                    "<span class=\"bible-cite\" _=\"on mouseenter call OnBibleCiteHover(me)\">"
                 );
 
                 str_append(out_html, "<sup class=\"bible-cite-symbol\">\u271d</sup>");
