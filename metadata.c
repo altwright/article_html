@@ -4,7 +4,14 @@
 
 #include "metadata.h"
 
-const char *kMetadataRefsKey = "refs";
+static const char* kMetadataKeyStrs[] = {
+#ifndef X
+#define X(key) \
+    #key,
+#endif
+    X_METADATA_KEYS
+#undef X
+};
 
 static const char *kMetadataDelimiter = "---";
 static const char *kMetadataFieldAssignDelimiter = "=";
@@ -47,4 +54,13 @@ i64 metadata_get(Arena *arena, const string_views *file_lines, MetadataMap *out_
     }
 
     return end_metadata_line_idx;
+}
+
+string metadata_key_to_str(Arena* arena, MetadataKey key) {
+    const char* key_str = kMetadataKeyStrs[key];
+
+    string lower_key_str = str_make(arena, "%s", key_str);
+    str_to_lower(&lower_key_str);
+
+    return lower_key_str;
 }

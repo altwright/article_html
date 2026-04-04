@@ -86,26 +86,66 @@ ArticleData article_parse(const char *filepath) {
 
     i64 start_body_line_idx = metadata_get(&tmp, &file_lines, &metadata_map);
     if (start_body_line_idx >= 0) {
-        string body_html = str_make(&tmp, "");
-
         bool bib_db_opened = false;
-        string rel_bibtex_filepath = HASHMAP_GET_VAL(&metadata_map, &kMetadataRefsKey);
-        if (!ARRAY_EMPTY(&rel_bibtex_filepath)
-            && cwk_path_is_relative(rel_bibtex_filepath.data)) {
-            u64 dirname_len = 0;
-            cwk_path_get_dirname(filepath, &dirname_len);
 
-            string dirname = str_make(&tmp, "%.*s", dirname_len, filepath);
-            u64 path_len = cwk_path_join(dirname.data, rel_bibtex_filepath.data, nullptr, 0);
-            assert(path_len > 0);
+        for (u32 metadata_key_idx = 0; metadata_key_idx < METADATA_KEY_COUNT; metadata_key_idx++) {
+            MetadataKey key_e = (MetadataKey) metadata_key_idx;
+            string key_str = metadata_key_to_str(&tmp, key_e);
+            string val_str = HASHMAP_GET_VAL(&metadata_map, &key_str.data);
+            if (!str_empty(&val_str)) {
+                char *val_buf = calloc(val_str.len + 1, sizeof(char));
+                assert(val_buf);
+                memcpy(val_buf, val_str.data, val_str.len);
 
-            string path = {&tmp, (i64) path_len, (i64) path_len + 1};
-            ARRAY_MAKE(&path);
+                switch (key_e) {
+                    case METADATA_KEY_TITLE: {
+                        data.title = val_buf;
+                        break;
+                    }
+                    case METADATA_KEY_SUBTITLE: {
+                        data.subtitle = val_buf;
+                        break;
+                    }
+                    case METADATA_KEY_CREATED: {
+                        data.date_created = val_buf;
+                        break;
+                    }
+                    case METADATA_KEY_MODIFIED: {
+                        data.date_modified = val_buf;
+                        break;
+                    }
+                    case METADATA_KEY_AUTHOR: {
+                        data.author = val_buf;
+                        break;
+                    }
+                    case METADATA_KEY_REFS: {
+                        if (cwk_path_is_relative(val_buf)) {
+                            u64 dirname_len = 0;
+                            cwk_path_get_dirname(filepath, &dirname_len);
 
-            cwk_path_join(dirname.data, rel_bibtex_filepath.data, path.data, path.cap);
+                            string dirname = str_make(&tmp, "%.*s", dirname_len, filepath);
+                            u64 path_len = cwk_path_join(dirname.data, val_buf, nullptr, 0);
+                            assert(path_len > 0);
 
-            bib_db_opened = bib_open_db(path.data);
+                            string path = {&tmp, (i64) path_len, (i64) path_len + 1};
+                            ARRAY_MAKE(&path);
+
+                            cwk_path_join(dirname.data, val_buf, path.data, path.cap);
+
+                            bib_db_opened = bib_open_db(path.data);
+                        }
+
+                        free(val_buf);
+                        break;
+                    }
+                    default:
+                        free(val_buf);
+                        break;
+                }
+            }
         }
+
+        string body_html = str_make(&tmp, "");
 
         body_to_html(&tmp, &metadata_map, bib_db_opened, &file_lines, start_body_line_idx, &body_html);
 
