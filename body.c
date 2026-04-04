@@ -1299,6 +1299,8 @@ void body_to_html(
 
                 assert(bib_db_opened);
 
+                i64 superscript_count = 0;
+
                 ARRAY_FOR(cite_key_section_str, &current_tk->data.cite.key_sections) {
                     i64 open_bracket_idx = -1, close_bracket_idx = -1;
 
@@ -1382,16 +1384,25 @@ void body_to_html(
                     assert(unique_cite_idx >= 0);
                     assert(note);
 
-                    // TODO: Add hyperscript to push this element on the history stack
+                    i64 display_cite_idx = unique_cite_idx + 1;
+
                     str_append(
                         out_html,
-                        "<sup id=\"cite-superscript-%d\" class=\"cite-footnote-index\">"
-                        "<a href=\"#cite-footnote-%d\">%d</a>"
+                        "<sup "
+                                "id=\"cite-superscript-%d\" "
+                                "class=\"cite-footnote-index\" "
+                                "_=\"on click call OnCiteSuperscriptClick(me)\""
+                        ">"
+                            "<a href=\"#cite-footnote-%d\" >"
+                                "%d"
+                            "</a>"
                         "</sup>",
-                        unique_cite_idx,
-                        unique_cite_idx,
-                        unique_cite_idx + 1
+                        superscript_count,
+                        display_cite_idx,
+                        display_cite_idx
                     );
+
+                    superscript_count++;
                 }
 
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
@@ -1432,7 +1443,7 @@ void body_to_html(
         str_append(out_html, "<ol class=\"cite-footnotes\">");
 
         for (i64 cite_idx = 0; cite_idx < cite_strs.len; cite_idx++) {
-            str_append(out_html, "<li id=\"cite-footnote-%d\">", cite_idx);
+            str_append(out_html, "<li id=\"cite-footnote-%d\">", cite_idx + 1);
             str_append(out_html, "%s", cite_strs.data[cite_idx]);
             str_append(out_html, "</li>");
         }
