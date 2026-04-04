@@ -108,6 +108,10 @@ typedef struct BIBLE_VERSE_TO_HTML_MAP_T {
     HASHMAP_FIELDS(const char*, char*)
 } BibleVerseToHtmlMap;
 
+typedef struct BIBLE_REFS_SEEN_MAP_T {
+    HASHMAP_FIELDS(const char*, bool)
+} BibleRefsSeenMap;
+
 typedef enum BIBLE_SUBKEY_E : i32 {
 #ifndef X_BIBLE_SUBKEYS
 #define X_BIBLE_SUBKEYS \
@@ -140,10 +144,12 @@ string bible_passage_ref_to_str(Arena *arena, BiblePassage passage);
 
 BibleSubkey bible_get_subkey(const string_view* subkey_str);
 
-char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
+string bible_get_verse_key_str(Arena *arena, BibleBook book, i32 chapter, i32 verse);
+
+const char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
 
 string bible_verse_block_to_inline(Arena *arena, const char* verse);
 
-string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage);
+string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage, BibleRefsSeenMap* seen);
 
 #endif //ARTICLE_HTML_BIBLE_H

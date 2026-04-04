@@ -408,20 +408,26 @@ BibleSubkey bible_get_subkey(const string_view *subkey_view) {
     return bible_subkey;
 }
 
-char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
-    Arena tmp = arena_make(64);
-
+string bible_get_verse_key_str(Arena *arena, BibleBook book, i32 chapter, i32 verse) {
     string verse_key = str_make(
-        &tmp,
+        arena,
         "%s_%d_%d",
         kBibleBookStrs[book],
         chapter,
         verse
     );
 
-    arena_free(&tmp);
+    return verse_key;
+}
+
+const char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
+    Arena tmp = arena_make(64);
+
+    string verse_key = bible_get_verse_key_str(&tmp, book, chapter, verse);
 
     char *verse_str = HASHMAP_GET_VAL(&g_lsb_verse_map, &verse_key.data);
+
+    arena_free(&tmp);
 
     return verse_str;
 }
@@ -429,7 +435,7 @@ char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
 string bible_verse_block_to_inline(Arena *arena, const char *verse) {
     string inline_html = str_make(arena, "%s", verse);
 
-    const char* opening_block_elems[] = {"<div", "<h1", "<h2", "<h3"};
+    const char *opening_block_elems[] = {"<div", "<h1", "<h2", "<h3"};
 
     for (i64 elem_idx = 0; elem_idx < STATIC_ARRAY_LEN(opening_block_elems); elem_idx++) {
         const char *opening_elem = opening_block_elems[elem_idx];
@@ -446,7 +452,7 @@ string bible_verse_block_to_inline(Arena *arena, const char *verse) {
         }
     }
 
-    const char* closing_block_elems[] = {"</div>", "</h1>", "</h2>", "</h3>"};
+    const char *closing_block_elems[] = {"</div>", "</h1>", "</h2>", "</h3>"};
 
     for (i64 elem_idx = 0; elem_idx < STATIC_ARRAY_LEN(closing_block_elems); elem_idx++) {
         const char *closing_elem = closing_block_elems[elem_idx];
@@ -466,7 +472,7 @@ string bible_verse_block_to_inline(Arena *arena, const char *verse) {
     return inline_html;
 }
 
-string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage) {
+string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage, BibleRefsSeenMap* seen_map) {
     string out_html = str_make(arena, "");
 
     if (passage.book < BIBLE_BOOK_COUNT
@@ -480,37 +486,35 @@ string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage) {
         str_append(&out_html, "%s", ref_str.data);
         str_append(&out_html, "</span>");
 
-        str_append(&out_html, "<span class=\"bible-hover-body hidden\">");
+        str_append(&out_html, "<span class=\"bible-hover-keys hidden\">");
+
+        i32 start_verse = 1;
+        i32 end_verse = start_verse;
 
         if (passage.ch_v.start_verse > 0) {
-            i32 start_verse = passage.ch_v.start_verse;
-            i32 end_verse = passage.ch_v.end_verse;
+            start_verse = passage.ch_v.start_verse;
+            end_verse = passage.ch_v.end_verse;
             if (end_verse < start_verse) {
                 end_verse = start_verse;
             }
+        }
 
-            Arena tmp = arena_make(512 + 32 * (end_verse - start_verse + 1));
-            DEFER(arena_free(&tmp)) {
-                for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                    char *verse_val = bible_get_verse(
-                        passage.book,
-                        passage.ch_v.chapter,
-                        current_verse
-                    );
+        Arena tmp = arena_make(64 * (end_verse - start_verse + 1));
+        DEFER(arena_free(&tmp)) {
+            for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
+                str_append(&out_html, "<span class=\"bible-hover-key\">");
+                string verse_key = bible_get_verse_key_str(
+                    &tmp,
+                    passage.book,
+                    passage.ch_v.chapter,
+                    current_verse
+                );
+                str_append(&out_html, "%s", verse_key.data);
+                str_append(&out_html, "</span>");
 
-                    if (verse_val) {
-                        string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
-                        str_append(&out_html, "%s", inline_verse_str.data);
-                    }
-                }
-            }
-        } else {
-            char *verse_val = bible_get_verse(passage.book, passage.ch_v.chapter, 1);
-            if (verse_val) {
-                Arena tmp = arena_make(512);
-                DEFER(arena_free(&tmp)) {
-                    string inline_verse_str = bible_verse_block_to_inline(&tmp, verse_val);
-                    str_append(&out_html, "%s", inline_verse_str.data);
+                if (seen_map) {
+                    bool seen = true;
+                    HASHMAP_PUT(seen_map, &verse_key.data, &seen);
                 }
             }
         }

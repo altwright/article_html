@@ -422,6 +422,10 @@ void body_to_html(
     string_view default_label_val = {};
     HASHMAP_MAKE(&existing_labels, &default_label_val);
 
+    BibleRefsSeenMap bible_refs_seen = {HASHMAP_TYPE_STR_KEY};
+    bool bible_ref_unseen = false;
+    HASHMAP_MAKE(&bible_refs_seen, &bible_ref_unseen);
+
     bool lsb_bible_quoted = false;
 
     i64 current_open_tk_idx = -1;
@@ -1193,7 +1197,7 @@ void body_to_html(
                         Arena tmp = arena_make(32 * (end_verse - start_verse + 1));
 
                         for (i32 current_verse = start_verse; current_verse <= end_verse; current_verse++) {
-                            char *verse_val = bible_get_verse(
+                            const char *verse_val = bible_get_verse(
                                 passage->book,
                                 passage->ch_v.chapter,
                                 current_verse
@@ -1228,7 +1232,11 @@ void body_to_html(
                 Arena tmp = arena_make(512 + 64 * passages->len);
                 DEFER(arena_free(&tmp)) {
                     for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
-                        string hover_html = bible_passage_to_hover_ref_html(&tmp, passages->data[passage_idx]);
+                        string hover_html = bible_passage_to_hover_ref_html(
+                            &tmp,
+                            passages->data[passage_idx],
+                            &bible_refs_seen
+                        );
                         str_append(out_html, "%s", hover_html.data);
 
                         if (passage_idx < passages->len - 1) {
@@ -1260,7 +1268,11 @@ void body_to_html(
                 Arena tmp = arena_make(512 + 64 * passages->len);
                 DEFER(arena_free(&tmp)) {
                     for (i32 passage_idx = 0; passage_idx < passages->len; passage_idx++) {
-                        string hover_html = bible_passage_to_hover_ref_html(&tmp, passages->data[passage_idx]);
+                        string hover_html = bible_passage_to_hover_ref_html(
+                            &tmp,
+                            passages->data[passage_idx],
+                            &bible_refs_seen
+                        );
 
                         str_append(out_html, "%s", hover_html.data);
 
@@ -1460,13 +1472,27 @@ void body_to_html(
     if (lsb_bible_quoted) {
         str_append(out_html,
                    "<p class=\"copyright-footer\">"
-                   "“Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
+                   "Scripture quotations taken from the (LSB®) Legacy Standard Bible®, "
                    "Copyright © 2021 by The Lockman Foundation. Used by permission. All rights reserved. "
                    "Managed in partnership with Three Sixteen Publishing Inc.&nbsp;"
                    "<a href=\"http://lsbible.org/\">LSBible.org</a>&nbsp;and&nbsp;"
-                   "<a href=\"http://316publishing.com/\">316publishing.com</a>.”"
+                   "<a href=\"http://316publishing.com/\">316publishing.com</a>."
                    "</p>"
         );
+    }
+
+    i64 bible_refs_seen_len = HASHMAP_LEN(&bible_refs_seen);
+    if (bible_refs_seen_len) {
+        str_append(out_html, "<ul id=\"bible-refs-html\" class=\"hidden\">");
+        HASHMAP_FOR(ref_key, &bible_refs_seen) {
+            const char* verse_html = HASHMAP_GET_VAL(&g_lsb_verse_map, &ref_key->key);
+            if (verse_html) {
+                str_append(out_html, "<li id=\"%s\">", ref_key->key);
+                str_append(out_html, "%s", verse_html);
+                str_append(out_html, "</li>");
+            }
+        }
+        str_append(out_html, "</ul>");
     }
 
     ARRAY_FOR(cite_str, &cite_strs) {
