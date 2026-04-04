@@ -1276,7 +1276,9 @@ void body_to_html(
                             &bible_refs_seen
                         );
 
+                        str_append(out_html, "<span class=\"bible-hover\" >");
                         str_append(out_html, "%s", hover_html.data);
+                        str_append(out_html, "</span>");
 
                         if (passage_idx < passages->len - 1) {
                             str_append(out_html, ", ");
