@@ -1101,6 +1101,8 @@ void body_to_html(
 
     i64 current_tk_idx = 0;
 
+    i64 superscript_count = 0;
+
     while (current_tk_idx >= 0 && current_tk_idx < tks.len) {
         ArticleToken *current_tk = ARRAY_ELEM(&tks, &current_tk_idx);
 
@@ -1299,7 +1301,6 @@ void body_to_html(
 
                 assert(bib_db_opened);
 
-                i64 superscript_count = 0;
 
                 ARRAY_FOR(cite_key_section_str, &current_tk->data.cite.key_sections) {
                     i64 open_bracket_idx = -1, close_bracket_idx = -1;
