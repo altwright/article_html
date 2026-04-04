@@ -1254,12 +1254,14 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_BIBLE_CITE: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
-                str_append(
-                    out_html,
-                    "<span class=\"bible-cite\" _=\"on mouseenter call OnBibleCiteHover(me)\">"
-                );
+                str_append(out_html, "<span class=\"bible-cite\">");
 
-                str_append(out_html, "<sup class=\"bible-cite-symbol\">\u271d</sup>");
+                str_append(out_html,
+                           "<sup class=\"bible-cite-symbol\" "
+                           "_=\"on mouseenter call OnBibleCiteHover(me)\">"
+                           "\u271d"
+                           "</sup>"
+                );
 
                 str_append(out_html, "<span class=\"bible-cite-refs hidden\">");
 
@@ -1485,7 +1487,7 @@ void body_to_html(
     if (bible_refs_seen_len) {
         str_append(out_html, "<ul id=\"bible-refs-html\" class=\"hidden\">");
         HASHMAP_FOR(ref_key, &bible_refs_seen) {
-            const char* verse_html = HASHMAP_GET_VAL(&g_lsb_verse_map, &ref_key->key);
+            const char *verse_html = HASHMAP_GET_VAL(&g_lsb_verse_map, &ref_key->key);
             if (verse_html) {
                 str_append(out_html, "<li id=\"%s\">", ref_key->key);
                 str_append(out_html, "%s", verse_html);

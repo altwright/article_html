@@ -148,8 +148,6 @@ string bible_get_verse_key_str(Arena *arena, BibleBook book, i32 chapter, i32 ve
 
 const char* bible_get_verse(BibleBook book, i32 chapter, i32 verse);
 
-string bible_verse_block_to_inline(Arena *arena, const char* verse);
-
 string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage, BibleRefsSeenMap* seen);
 
 #endif //ARTICLE_HTML_BIBLE_H

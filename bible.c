@@ -432,46 +432,6 @@ const char *bible_get_verse(BibleBook book, i32 chapter, i32 verse) {
     return verse_str;
 }
 
-string bible_verse_block_to_inline(Arena *arena, const char *verse) {
-    string inline_html = str_make(arena, "%s", verse);
-
-    const char *opening_block_elems[] = {"<div", "<h1", "<h2", "<h3"};
-
-    for (i64 elem_idx = 0; elem_idx < STATIC_ARRAY_LEN(opening_block_elems); elem_idx++) {
-        const char *opening_elem = opening_block_elems[elem_idx];
-        i64 opening_elem_len = (i64) strlen(opening_elem);
-        char *opening_elem_start = nullptr;
-        while (opening_elem_start = strstr(inline_html.data, opening_elem), opening_elem_start) {
-            i64 opening_elem_start_idx = opening_elem_start - inline_html.data;
-            str_replace_at(
-                &inline_html,
-                opening_elem_start_idx,
-                opening_elem_len,
-                "<span"
-            );
-        }
-    }
-
-    const char *closing_block_elems[] = {"</div>", "</h1>", "</h2>", "</h3>"};
-
-    for (i64 elem_idx = 0; elem_idx < STATIC_ARRAY_LEN(closing_block_elems); elem_idx++) {
-        const char *closing_elem = closing_block_elems[elem_idx];
-        i64 closing_elem_len = (i64) strlen(closing_elem);
-        char *closing_elem_start = nullptr;
-        while (closing_elem_start = strstr(inline_html.data, closing_elem), closing_elem_start) {
-            i64 closing_elem_start_idx = closing_elem_start - inline_html.data;
-            str_replace_at(
-                &inline_html,
-                closing_elem_start_idx,
-                closing_elem_len,
-                "</span>"
-            );
-        }
-    }
-
-    return inline_html;
-}
-
 string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage, BibleRefsSeenMap* seen_map) {
     string out_html = str_make(arena, "");
 
