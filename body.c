@@ -33,6 +33,7 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(BIBLE_HOVER) \
     X(BIBLE_CITE) \
     X(CITE) \
+    X(BLOCK_QUOTE) \
     X(COUNT)
 #endif
 
@@ -61,6 +62,10 @@ typedef struct TEXT_TOKEN_DATA_T {
 typedef TextTokenData RegularTextTokenData;
 typedef TextTokenData ItalicTextTokenData;
 typedef TextTokenData BoldTextTokenData;
+
+typedef struct BLOCK_QUOTE_TOKEN_DATA_T {
+    string text;
+} BlockQuoteTokenData;
 
 typedef struct LABEL_TOKEN_DATA_T {
     string name;
@@ -120,6 +125,7 @@ typedef struct ARTICLE_TOKEN_T {
         BibleHoverTokenData bible_hover;
         BibleCiteTokenData bible_cite;
         CiteTokenData cite;
+        BlockQuoteTokenData block_quote;
     } data;
 } ArticleToken;
 
@@ -172,6 +178,7 @@ static const char *kMetablockKeyStrs[] = {
 static const char *kMetablockStartDelimiter = "{{";
 static const char *kMetablockEndDelimiter = "}}";
 static const char *kMetablockLabelKey = "label";
+static const char *kBlockQuotePrefix = "> ";
 
 static int SortMallocStrings(const void *left, const void *right) {
     u64 left_count = strlen(left);
@@ -515,7 +522,22 @@ void body_to_html(
                         break;
                     }
                     case '>': {
-                        // Blockquote
+                        ArticleToken open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_BLOCK_QUOTE,
+                        };
+
+                        BlockQuoteTokenData quote_tk_data = {};
+                        quote_tk_data.text = str_make(arena, "");
+
+                        open_tk.data.block_quote = quote_tk_data;
+
+                        current_open_tk_idx = tks.len;
+
+                        ARRAY_PUSH(&tks, &open_tk);
+
+                        line_idx--;
+
                         break;
                     }
                     case '{': {
@@ -1032,6 +1054,30 @@ void body_to_html(
 
                         break;
                     }
+                    case ARTICLE_TOKEN_TYPE_BLOCK_QUOTE: {
+                        if (line->len > 2
+                            && strncmp(line->data, kBlockQuotePrefix, strlen(kBlockQuotePrefix)) == 0) {
+                            for (i64 c_idx = 2; c_idx < line->len; c_idx++) {
+                                str_append(&current_open_tk->data.block_quote.text, "%c", line->data[c_idx]);
+
+                                if (c_idx == line->len - 1) {
+                                    str_append(&current_open_tk->data.block_quote.text, " ");
+                                }
+                            }
+                        } else {
+                            ArticleToken close_tk = {
+                                TOKEN_PAREN_CLOSE,
+                                ARTICLE_TOKEN_TYPE_BLOCK_QUOTE
+                            };
+
+                            ARRAY_PUSH(&tks, &close_tk);
+                            current_open_tk_idx = -1;
+
+                            line_idx--;
+                        }
+
+                        break;
+                    }
                     default: {
                         current_open_tk_idx = -1;
                         break;
@@ -1066,6 +1112,17 @@ void body_to_html(
 
                         current_open_tk_idx = -1;
 
+                        break;
+                    }
+                    case ARTICLE_TOKEN_TYPE_BLOCK_QUOTE: {
+                        ArticleToken close_tk = {
+                            TOKEN_PAREN_CLOSE,
+                            ARTICLE_TOKEN_TYPE_BLOCK_QUOTE
+                        };
+
+                        ARRAY_PUSH(&tks, &close_tk);
+
+                        current_open_tk_idx = -1;
                         break;
                     }
                     default:
@@ -1390,13 +1447,13 @@ void body_to_html(
                     str_append(
                         out_html,
                         "<sup "
-                                "id=\"cite-superscript-%d\" "
-                                "class=\"cite-footnote-index\" "
-                                "_=\"on click call OnCiteSuperscriptClick(me)\""
+                        "id=\"cite-superscript-%d\" "
+                        "class=\"cite-footnote-index\" "
+                        "_=\"on click call OnCiteSuperscriptClick(me)\""
                         ">"
-                            "<a href=\"#cite-footnote-%d\" >"
-                                "%d"
-                            "</a>"
+                        "<a href=\"#cite-footnote-%d\" >"
+                        "%d"
+                        "</a>"
                         "</sup>",
                         superscript_count,
                         display_cite_idx,
@@ -1428,6 +1485,14 @@ void body_to_html(
 
                 str_append(out_html, "</a>");
 
+                current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
+                assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_BLOCK_QUOTE: {
+                assert(current_tk->paren == TOKEN_PAREN_OPEN);
+
+                str_append(out_html, "<blockquote>%s</blockquote>", current_tk->data.block_quote.text.data);
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
                 break;
