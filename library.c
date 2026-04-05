@@ -9,6 +9,7 @@
 #include <altcore/hashmap.h>
 #include <bibtool_wrapper/library.h>
 #include <cwalk.h>
+#include <threads.h>
 
 #include "bible.h"
 #include "body.h"
@@ -17,6 +18,7 @@
 
 static bool g_initialized = false;
 static constexpr i64 kMallocInitialCapacity = 1024LL * 1024LL * 1024LL;
+static mtx_t g_lock = {};
 
 void article_init(const char *lsb_csv_filepath) {
     if (!g_initialized) {
@@ -26,12 +28,18 @@ void article_init(const char *lsb_csv_filepath) {
 
         bible_init(lsb_csv_filepath);
 
+        int err = mtx_init(&g_lock, mtx_plain);
+        assert(!err);
+
         g_initialized = true;
     }
 }
 
 void article_uninit() {
     if (g_initialized) {
+        mtx_destroy(&g_lock);
+        g_lock = (mtx_t){};
+
         bible_uninit();
 
         bib_uninit();
@@ -43,6 +51,9 @@ void article_uninit() {
 }
 
 ArticleData article_parse(const char *filepath) {
+    int err = mtx_lock(&g_lock);
+    assert(!err);
+
     ArticleData data = {};
     if (!filepath) {
         return data;
@@ -56,7 +67,6 @@ ArticleData article_parse(const char *filepath) {
     Arena tmp = arena_make(kMallocInitialCapacity / 2);
     string file_buffer = {&tmp};
 
-    int err = 0;
     DEFER(err = fclose(fp), assert(!err), fp = nullptr) {
         err = fseek(fp, 0, SEEK_END);
         assert(!err);
@@ -161,6 +171,9 @@ ArticleData article_parse(const char *filepath) {
     HASHMAP_FREE(&metadata_map);
 
     arena_free(&tmp);
+
+    err = mtx_unlock(&g_lock);
+    assert(!err);
 
     return data;
 }
