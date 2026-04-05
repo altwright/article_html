@@ -24,9 +24,9 @@ typedef enum ARTICLE_TOKEN_TYPE_E {
     X(ITALIC_TEXT) \
     X(BOLD_TEXT) \
     X(UNDERLINED_TEXT) \
-    X(BLOCKQUOTE) \
     X(UNORDERED_LIST) \
     X(ORDERED_LIST) \
+    X(LIST_ITEM) \
     X(LABEL) \
     X(LABEL_DISPLAY) \
     X(BIBLE_BLOCK) \
@@ -540,6 +540,46 @@ void body_to_html(
 
                         break;
                     }
+                    case '-': {
+                        if (line->len <= 1 || line->data[1] != ' ') {
+                            break;
+                        }
+
+                        ArticleToken ul_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_UNORDERED_LIST
+                        };
+
+                        ARRAY_PUSH(&tks, &ul_open_tk);
+
+                        ArticleToken li_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_LIST_ITEM
+                        };
+
+                        ARRAY_PUSH(&tks, &li_open_tk);
+
+                        current_open_tk_idx = tks.len;
+
+                        ArticleToken text_open_tk = {
+                            TOKEN_PAREN_OPEN,
+                            ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                        };
+
+                        RegularTextTokenData text_data = {
+                            .text = str_make(arena, ""),
+                            .start_c_idx = 2,
+                            .start_line_idx = line_idx,
+                        };
+
+                        text_open_tk.data.reg_text = text_data;
+
+                        ARRAY_PUSH(&tks, &text_open_tk);
+
+                        line_idx--;
+
+                        break;
+                    }
                     case '{': {
                         // Metablock
                         MetablockData metablock_data = metablock_get_data(arena, &line_view);
@@ -654,6 +694,77 @@ void body_to_html(
                         i64 start_char_idx = current_open_tk->data.reg_text.start_line_idx == line_idx
                                                  ? current_open_tk->data.reg_text.start_c_idx
                                                  : 0;
+
+                        bool early_exit = false;
+
+                        if (start_char_idx == 0) {
+                            char start_c = line->data[0];
+                            switch (start_c) {
+                                case '-': {
+                                    if (line->len <= 1 || line->data[1] != ' ') {
+                                        break;
+                                    }
+
+                                    i64 parent_tk_idx = find_parent_open_tk_idx(&tks, current_open_tk_idx);
+                                    if (parent_tk_idx < 0) {
+                                        break;
+                                    }
+                                    ArticleToken *parent_tk = ARRAY_ELEM(&tks, &parent_tk_idx);
+
+                                    if (parent_tk->type != ARTICLE_TOKEN_TYPE_LIST_ITEM) {
+                                        break;
+                                    }
+
+                                    ArticleToken close_tk = {
+                                        TOKEN_PAREN_CLOSE,
+                                        ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                                    };
+
+                                    ARRAY_PUSH(&tks, &close_tk);
+
+                                    ArticleToken li_close_tk = {
+                                        TOKEN_PAREN_CLOSE,
+                                        ARTICLE_TOKEN_TYPE_LIST_ITEM
+                                    };
+
+                                    ARRAY_PUSH(&tks, &li_close_tk);
+
+                                    ArticleToken li_open_tk = {
+                                        TOKEN_PAREN_OPEN,
+                                        ARTICLE_TOKEN_TYPE_LIST_ITEM
+                                    };
+
+                                    ARRAY_PUSH(&tks, &li_open_tk);
+
+                                    ArticleToken text_open_tk = {
+                                        TOKEN_PAREN_OPEN,
+                                        ARTICLE_TOKEN_TYPE_REGULAR_TEXT
+                                    };
+
+                                    RegularTextTokenData text_data = {
+                                        .text = str_make(arena, ""),
+                                        .start_c_idx = 2,
+                                        .start_line_idx = line_idx,
+                                    };
+
+                                    text_open_tk.data.reg_text = text_data;
+
+                                    current_open_tk_idx = tks.len;
+                                    ARRAY_PUSH(&tks, &text_open_tk);
+
+                                    line_idx--;
+
+                                    early_exit = true;
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+
+                        if (early_exit) {
+                            break;
+                        }
 
                         for (i64 c_idx = start_char_idx; c_idx < line->len; c_idx++) {
                             char c = line->data[c_idx];
@@ -847,6 +958,9 @@ void body_to_html(
                                             break;
                                     }
 
+                                    break;
+                                }
+                                case '\t': {
                                     break;
                                 }
                                 default: {
@@ -1088,8 +1202,6 @@ void body_to_html(
                     case ARTICLE_TOKEN_TYPE_BOLD_TEXT:
                     case ARTICLE_TOKEN_TYPE_ITALIC_TEXT:
                     case ARTICLE_TOKEN_TYPE_REGULAR_TEXT: {
-                        // Within a paragraph
-
                         ArticleToken close_tk = {
                             TOKEN_PAREN_CLOSE,
                             current_open_tk->type
@@ -1101,14 +1213,45 @@ void body_to_html(
                         assert(parent_open_tk_idx >= 0);
 
                         ArticleToken *parent_open_tk = ARRAY_ELEM(&tks, &parent_open_tk_idx);
-                        assert(parent_open_tk->type == ARTICLE_TOKEN_TYPE_PARAGRAPH);
 
-                        ArticleToken paragraph_close_tk = {
-                            TOKEN_PAREN_CLOSE,
-                            ARTICLE_TOKEN_TYPE_PARAGRAPH,
-                        };
+                        switch (parent_open_tk->type) {
+                            case ARTICLE_TOKEN_TYPE_LIST_ITEM: {
+                                i64 list_parent_tk_idx = find_parent_open_tk_idx(&tks, parent_open_tk_idx);
+                                assert(list_parent_tk_idx >= 0);
 
-                        ARRAY_PUSH(&tks, &paragraph_close_tk);
+                                ArticleToken *list_parent_tk = ARRAY_ELEM(&tks, &list_parent_tk_idx);
+                                assert(
+                                    list_parent_tk->type == ARTICLE_TOKEN_TYPE_UNORDERED_LIST
+                                    || list_parent_tk->type == ARTICLE_TOKEN_TYPE_ORDERED_LIST
+                                );
+
+                                ArticleToken li_close_tk = {
+                                    TOKEN_PAREN_CLOSE,
+                                    ARTICLE_TOKEN_TYPE_LIST_ITEM,
+                                };
+
+                                ARRAY_PUSH(&tks, &li_close_tk);
+
+                                ArticleToken list_close_tk = {
+                                    TOKEN_PAREN_CLOSE,
+                                    list_parent_tk->type,
+                                };
+
+                                ARRAY_PUSH(&tks, &list_close_tk);
+
+                                break;
+                            }
+                            case ARTICLE_TOKEN_TYPE_PARAGRAPH:
+                            default: {
+                                ArticleToken paragraph_close_tk = {
+                                    TOKEN_PAREN_CLOSE,
+                                    ARTICLE_TOKEN_TYPE_PARAGRAPH,
+                                };
+
+                                ARRAY_PUSH(&tks, &paragraph_close_tk);
+                                break;
+                            }
+                        }
 
                         current_open_tk_idx = -1;
 
@@ -1492,9 +1635,58 @@ void body_to_html(
             case ARTICLE_TOKEN_TYPE_BLOCK_QUOTE: {
                 assert(current_tk->paren == TOKEN_PAREN_OPEN);
 
-                str_append(out_html, "<blockquote>%s</blockquote>", current_tk->data.block_quote.text.data);
+                str_append(
+                    out_html,
+                    "<blockquote>%s</blockquote>",
+                    current_tk->data.block_quote.text.data
+                );
                 current_tk_idx = find_closing_tk_idx(&tks, current_tk_idx);
                 assert(current_tk_idx >= 0);
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_UNORDERED_LIST: {
+                switch (current_tk->paren) {
+                    case TOKEN_PAREN_OPEN: {
+                        str_append(out_html, "<ul>");
+                        break;
+                    }
+                    case TOKEN_PAREN_CLOSE: {
+                        str_append(out_html, "</ul>");
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_ORDERED_LIST: {
+                switch (current_tk->paren) {
+                    case TOKEN_PAREN_OPEN: {
+                        str_append(out_html, "<ol>");
+                        break;
+                    }
+                    case TOKEN_PAREN_CLOSE: {
+                        str_append(out_html, "</ol>");
+                        break;
+                    }
+                    default:
+                        break;
+                }
+                break;
+            }
+            case ARTICLE_TOKEN_TYPE_LIST_ITEM: {
+                switch (current_tk->paren) {
+                    case TOKEN_PAREN_OPEN: {
+                        str_append(out_html, "<li>");
+                        break;
+                    }
+                    case TOKEN_PAREN_CLOSE: {
+                        str_append(out_html, "</li>");
+                        break;
+                    }
+                    default:
+                        break;
+                }
                 break;
             }
             default:
