@@ -441,7 +441,10 @@ string bible_passage_to_hover_ref_html(Arena *arena, BiblePassage passage, Bible
 
         str_append(
             &out_html,
-            "<span class=\"bible-hover-ref\" _=\"on mouseenter call OnBibleRefHover(me)\">"
+            "<span class=\"bible-hover-ref\" _=\""
+                    "on mouseenter call OnBibleRefMouseEnter(me)"
+                    "on mouseleave call OnBibleRefMouseLeave(me)"
+                "\">"
         );
         str_append(&out_html, "%s", ref_str.data);
         str_append(&out_html, "</span>");

@@ -1460,8 +1460,11 @@ void body_to_html(
 
                 str_append(out_html,
                            "<sup class=\"bible-cite-symbol\" "
-                           "_=\"on mouseenter call OnBibleCiteHover(me)\">"
-                           "\u271d"
+                           "_=\""
+                                "on mouseenter call OnBibleCiteMouseEnter(me)"
+                                "on mouseleave call OnBibleCiteMouseLeave(me)"
+                            "\">"
+                               "\u271d"
                            "</sup>"
                 );
 
