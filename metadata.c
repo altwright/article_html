@@ -22,20 +22,20 @@ i64 metadata_get(Arena *arena, const string_views *file_lines, MetadataMap *out_
     i32 meta_delim_count = 0;
 
     ARRAY_FOR(line, file_lines) {
-        if (strncmp(line->data, kMetadataDelimiter, strlen(kMetadataDelimiter)) == 0) {
+        if (strncmp(line->start, kMetadataDelimiter, strlen(kMetadataDelimiter)) == 0) {
             meta_delim_count++;
         } else {
             if (meta_delim_count == 1) {
                 u64 delim_len = strlen(kMetadataFieldAssignDelimiter);
-                const char* assign_delim = strstr(line->data, kMetadataFieldAssignDelimiter);
+                const char* assign_delim = strstr(line->start, kMetadataFieldAssignDelimiter);
                 if (assign_delim) {
                     string_view key = {
-                        line->data,
-                        assign_delim - line->data
+                        line->start,
+                        assign_delim - line->start
                     };
                     string_view val = {
                         assign_delim + delim_len,
-                        (line->data + line->len + 1) - (assign_delim + delim_len)
+                        (line->start + line->len + 1) - (assign_delim + delim_len)
                     };
 
                     str_strip(&key);

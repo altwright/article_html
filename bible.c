@@ -95,9 +95,9 @@ void bible_init(const char *lsb_csv_filepath) {
 
             bool is_numbered_book = false;
 
-            if (isdigit(book_str->data[0])) {
+            if (isdigit(book_str->start[0])) {
                 char *title_start = nullptr;
-                i64 book_num = strtol(book_str->data, &title_start, 10);
+                i64 book_num = strtol(book_str->start, &title_start, 10);
                 const char *num_str = book_num_to_str((i32) book_num);
 
                 if (num_str && title_start) {
@@ -106,23 +106,23 @@ void bible_init(const char *lsb_csv_filepath) {
 
                     string_view title_view = {
                         title_start,
-                        (book_str->data + book_str->len) - title_start,
+                        (book_str->start + book_str->len) - title_start,
                     };
-                    str_append(&bible_key_str, "%s_%.*s_", num_str, title_view.len, title_view.data);
+                    str_append(&bible_key_str, "%s_%.*s_", num_str, title_view.len, title_view.start);
                 }
             }
 
             if (!is_numbered_book) {
-                str_append(&bible_key_str, "%.*s_", book_str->len, book_str->data);
+                str_append(&bible_key_str, "%.*s_", book_str->len, book_str->start);
             }
 
             str_append(
                 &bible_key_str,
                 "%.*s_%.*s",
                 chapter_str->len,
-                chapter_str->data,
+                chapter_str->start,
                 verse_str->len,
-                verse_str->data
+                verse_str->start
             );
             str_to_upper(&bible_key_str);
             ARRAY_FOR(c, &bible_key_str) {
@@ -132,7 +132,7 @@ void bible_init(const char *lsb_csv_filepath) {
             }
 
             i64 text_start_idx = comma_vals.len > 3
-                                     ? comma_vals.data[3].data - line->data
+                                     ? comma_vals.data[3].start - line->start
                                      : line->len;
             i64 text_len = line->len - text_start_idx;
             if (text_len > 0) {
@@ -143,7 +143,7 @@ void bible_init(const char *lsb_csv_filepath) {
                     text_len + 1,
                     "%.*s",
                     (i32) text_len,
-                    line->data + (line->len - text_len)
+                    line->start + (line->len - text_len)
                 );
 
                 HASHMAP_PUT(&g_lsb_verse_map, &bible_key_str.data, &text_str);
@@ -185,9 +185,9 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
     while (ref_val_idx < ref_vals.len) {
         const char *book_num_str = nullptr;
 
-        char first_c = ref_vals.data[ref_val_idx].data[0];
+        char first_c = ref_vals.data[ref_val_idx].start[0];
         if (isdigit(first_c)) {
-            i64 book_num = strtol(ref_vals.data[ref_val_idx].data, nullptr, 10);
+            i64 book_num = strtol(ref_vals.data[ref_val_idx].start, nullptr, 10);
             book_num_str = book_num_to_str((i32) book_num);
             ref_val_idx++;
         }
@@ -241,7 +241,7 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
 
             i64 colon_idx = -1;
             for (i64 c_idx = 0; c_idx < ch_v_str_part->len; c_idx++) {
-                char c = ch_v_str_part->data[c_idx];
+                char c = ch_v_str_part->start[c_idx];
                 if (c == ':') {
                     colon_idx = c_idx;
                     break;
@@ -257,7 +257,7 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
                         .book = book,
                     };
 
-                    passage.ch_v.chapter = (i32) strtol(ch_v_str->data, nullptr, 10);
+                    passage.ch_v.chapter = (i32) strtol(ch_v_str->start, nullptr, 10);
 
                     ARRAY_PUSH(&passages, &passage);
 
@@ -269,7 +269,7 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
 
             if (!ch_v.chapter) {
                 string_view ch_view = {
-                    ch_v_str_part->data,
+                    ch_v_str_part->start,
                     colon_idx
                 };
 
@@ -277,16 +277,16 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
 
                 ch_v.chapter = (i32) strtol(ch_str.data, nullptr, 10);
 
-                v_view.data = ch_v_str_part->data + colon_idx + 1;
+                v_view.start = ch_v_str_part->start + colon_idx + 1;
                 v_view.len = ch_v_str_part->len - colon_idx + 1;
             } else {
-                v_view.data = ch_v_str_part->data;
+                v_view.start = ch_v_str_part->start;
                 v_view.len = ch_v_str_part->len;
             }
 
             i64 dash_idx = -1;
             for (i64 c_idx = 0; c_idx < v_view.len; c_idx++) {
-                char c = v_view.data[c_idx];
+                char c = v_view.start[c_idx];
                 if (c == '-') {
                     dash_idx = c_idx;
                     break;
@@ -294,14 +294,14 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
             }
 
             if (dash_idx < 0) {
-                ch_v.start_verse = (i32) strtol(v_view.data, nullptr, 10);
+                ch_v.start_verse = (i32) strtol(v_view.start, nullptr, 10);
             } else {
                 string_views vs_views = str_split(arena, &v_view, "-");
                 assert(vs_views.len == 2);
                 const string_view *start_v = &vs_views.data[0];
                 const string_view *end_v = &vs_views.data[1];
-                ch_v.start_verse = (i32) strtol(start_v->data, nullptr, 10);
-                ch_v.end_verse = (i32) strtol(end_v->data, nullptr, 10);
+                ch_v.start_verse = (i32) strtol(start_v->start, nullptr, 10);
+                ch_v.end_verse = (i32) strtol(end_v->start, nullptr, 10);
             }
 
             BiblePassage passage = {

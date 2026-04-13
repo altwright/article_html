@@ -231,7 +231,7 @@ static bool label_get_metablock(
         return false;
     }
 
-    const char *start_delim = strstr(in_label_metablock->data, kMetablockStartDelimiter);
+    const char *start_delim = strstr(in_label_metablock->start, kMetablockStartDelimiter);
     if (!start_delim) {
         return false;
     }
@@ -253,13 +253,13 @@ static bool label_get_metablock(
         return false;
     }
 
-    if (strncmp(terms.data[0].data, kMetablockLabelKey, strlen(kMetablockLabelKey)) != 0) {
+    if (strncmp(terms.data[0].start, kMetablockLabelKey, strlen(kMetablockLabelKey)) != 0) {
         return false;
     }
 
-    string_view display_str = HASHMAP_GET_VAL(in_labels_map, &terms.data[1].data);
+    string_view display_str = HASHMAP_GET_VAL(in_labels_map, &terms.data[1].start);
 
-    if (display_str.data) {
+    if (display_str.start) {
         return false;
     }
 
@@ -365,7 +365,7 @@ static MetablockData metablock_get_data(Arena *arena, const string_view *line_vi
 
     if (metablock_data.range.start_c_idx >= 0 && metablock_data.range.end_c_idx >= 0) {
         string_view metablock_view = {
-            line_view->data + metablock_data.range.start_c_idx,
+            line_view->start + metablock_data.range.start_c_idx,
             metablock_data.range.end_c_idx - metablock_data.range.start_c_idx
         };
 
@@ -380,7 +380,7 @@ static MetablockData metablock_get_data(Arena *arena, const string_view *line_vi
             string current_key_str = str_make(arena, "%s", kMetablockKeyStrs[key_idx]);
             str_to_lower(&current_key_str);
 
-            if (strncmp(key_str->data, current_key_str.data, current_key_str.len) == 0) {
+            if (strncmp(key_str->start, current_key_str.data, current_key_str.len) == 0) {
                 metablock_data.key = key_idx;
                 break;
             }
@@ -400,7 +400,7 @@ static string metablock_join_val_strs(Arena *arena, const string_views *val_strs
         val_str_idx < val_strs->len;
         val_str_idx++
     ) {
-        str_append(&ref_str, "%.*s", val_strs->data[val_str_idx].len, val_strs->data[val_str_idx].data);
+        str_append(&ref_str, "%.*s", val_strs->data[val_str_idx].len, val_strs->data[val_str_idx].start);
 
         if (val_str_idx < val_strs->len - 1) {
             str_append(&ref_str, " ");
@@ -440,13 +440,13 @@ void body_to_html(
     for (i64 line_idx = body_start_line_idx; line_idx < file_lines->len; line_idx++) {
         const string_view *line = &file_lines->data[line_idx];
 
-        string_view line_view = {line->data, line->len};
+        string_view line_view = {line->start, line->len};
 
         if (current_open_tk_idx < 0) {
             str_strip(&line_view);
 
             if (line_view.len > 0) {
-                switch (line_view.data[0]) {
+                switch (line_view.start[0]) {
                     case '#': {
                         // Heading
                         ArticleTokenType heading_tk_type = ARTICLE_TOKEN_TYPE_HEADING;
@@ -457,7 +457,7 @@ void body_to_html(
 
                         i64 text_start_idx;
                         for (text_start_idx = 0; text_start_idx < line_view.len; text_start_idx++) {
-                            if (line_view.data[text_start_idx] != '#') {
+                            if (line_view.start[text_start_idx] != '#') {
                                 break;
                             }
                         }
@@ -471,12 +471,12 @@ void body_to_html(
                         bool label_present = false;
                         LabelTokenData label_tk_data = {};
 
-                        if (line_view.data[text_start_idx] == kMetablockStartDelimiter[0]) {
+                        if (line_view.start[text_start_idx] == kMetablockStartDelimiter[0]) {
                             // label
                             MetablockRange label_range = metablock_find_range(arena, &line_view);
                             if (label_range.start_c_idx >= 0 && label_range.end_c_idx >= 0) {
                                 string_view metablock_view = {
-                                    line_view.data + label_range.start_c_idx,
+                                    line_view.start + label_range.start_c_idx,
                                     label_range.end_c_idx - label_range.start_c_idx
                                 };
 
@@ -541,7 +541,7 @@ void body_to_html(
                         break;
                     }
                     case '-': {
-                        if (line->len <= 1 || line->data[1] != ' ') {
+                        if (line->len <= 1 || line->start[1] != ' ') {
                             break;
                         }
 
@@ -698,10 +698,10 @@ void body_to_html(
                         bool early_exit = false;
 
                         if (start_char_idx == 0) {
-                            char start_c = line->data[0];
+                            char start_c = line->start[0];
                             switch (start_c) {
                                 case '-': {
-                                    if (line->len <= 1 || line->data[1] != ' ') {
+                                    if (line->len <= 1 || line->start[1] != ' ') {
                                         break;
                                     }
 
@@ -767,7 +767,7 @@ void body_to_html(
                         }
 
                         for (i64 c_idx = start_char_idx; c_idx < line->len; c_idx++) {
-                            char c = line->data[c_idx];
+                            char c = line->start[c_idx];
 
                             bool new_tk = false;
 
@@ -778,7 +778,7 @@ void body_to_html(
                             switch (c) {
                                 case '*': {
                                     bool is_italic = true;
-                                    if (c_idx < line->len - 1 && line->data[c_idx + 1] == '*') {
+                                    if (c_idx < line->len - 1 && line->start[c_idx + 1] == '*') {
                                         is_italic = false;
                                     }
 
@@ -802,7 +802,7 @@ void body_to_html(
                                 }
                                 case '{': {
                                     string_view metablock_view = {
-                                        line->data + c_idx,
+                                        line->start + c_idx,
                                         line->len - c_idx,
                                     };
 
@@ -1000,7 +1000,7 @@ void body_to_html(
                         bool end_of_tk = false;
                         i64 c_idx;
                         for (c_idx = start_c_idx; c_idx < line->len; c_idx++) {
-                            char c = line->data[c_idx];
+                            char c = line->start[c_idx];
 
                             if (c == '*') {
                                 end_of_tk = true;
@@ -1050,8 +1050,8 @@ void body_to_html(
                         i64 c_idx;
                         for (c_idx = start_c_idx; c_idx < line->len; c_idx++) {
                             if (c_idx < line->len - 1) {
-                                char first_c = line->data[c_idx];
-                                char second_c = line->data[c_idx + 1];
+                                char first_c = line->start[c_idx];
+                                char second_c = line->start[c_idx + 1];
 
                                 if (first_c == '*' && second_c == '*') {
                                     end_of_tk = true;
@@ -1059,7 +1059,7 @@ void body_to_html(
                                 }
                             }
 
-                            str_append(&current_open_tk->data.bold_text.text, "%c", line->data[c_idx]);
+                            str_append(&current_open_tk->data.bold_text.text, "%c", line->start[c_idx]);
 
                             if (c_idx == line->len - 1) {
                                 // Replace new line with a space
@@ -1170,9 +1170,9 @@ void body_to_html(
                     }
                     case ARTICLE_TOKEN_TYPE_BLOCK_QUOTE: {
                         if (line->len > 2
-                            && strncmp(line->data, kBlockQuotePrefix, strlen(kBlockQuotePrefix)) == 0) {
+                            && strncmp(line->start, kBlockQuotePrefix, strlen(kBlockQuotePrefix)) == 0) {
                             for (i64 c_idx = 2; c_idx < line->len; c_idx++) {
-                                str_append(&current_open_tk->data.block_quote.text, "%c", line->data[c_idx]);
+                                str_append(&current_open_tk->data.block_quote.text, "%c", line->start[c_idx]);
 
                                 if (c_idx == line->len - 1) {
                                     str_append(&current_open_tk->data.block_quote.text, " ");
@@ -1509,7 +1509,7 @@ void body_to_html(
                     i64 open_bracket_idx = -1, close_bracket_idx = -1;
 
                     for (i64 c_idx = 0; c_idx < cite_key_section_str->len; c_idx++) {
-                        switch (cite_key_section_str->data[c_idx]) {
+                        switch (cite_key_section_str->start[c_idx]) {
                             case '[': {
                                 open_bracket_idx = c_idx;
                                 break;
@@ -1532,12 +1532,12 @@ void body_to_html(
 
                     if (open_bracket_idx > 0 && open_bracket_idx < close_bracket_idx - 1) {
                         string_view key_view = {
-                            cite_key_section_str->data,
+                            cite_key_section_str->start,
                             open_bracket_idx
                         };
 
                         string_view section_view = {
-                            cite_key_section_str->data + open_bracket_idx + 1,
+                            cite_key_section_str->start + open_bracket_idx + 1,
                             close_bracket_idx - open_bracket_idx - 1,
                         };
 
@@ -1553,7 +1553,7 @@ void body_to_html(
                     i64 unique_cite_idx = -1;
 
                     if (key_seen) {
-                        unique_cite_idx = HASHMAP_GET_VAL(&unique_cite_entry_idxs, &cite_key_section_str->data);
+                        unique_cite_idx = HASHMAP_GET_VAL(&unique_cite_entry_idxs, &cite_key_section_str->start);
 
                         if (unique_cite_idx < 0) {
                             note = bib_create_short_note_html(
@@ -1563,7 +1563,7 @@ void body_to_html(
                             );
 
                             unique_cite_idx = cite_strs.len;
-                            HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->data, &unique_cite_idx);
+                            HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->start, &unique_cite_idx);
 
                             ARRAY_PUSH(&cite_strs, &note);
                         } else {
@@ -1580,7 +1580,7 @@ void body_to_html(
                         );
 
                         unique_cite_idx = cite_strs.len;
-                        HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->data, &unique_cite_idx);
+                        HASHMAP_PUT(&unique_cite_entry_idxs, &cite_key_section_str->start, &unique_cite_idx);
 
                         ARRAY_PUSH(&cite_strs, &note);
                     }
@@ -1625,7 +1625,7 @@ void body_to_html(
                 string label_id_str = str_make_view(arena, &current_tk->data.label_display.id);
 
                 string_view display_label = HASHMAP_GET_VAL(&existing_labels, &label_id_str.data);
-                if (display_label.data) {
+                if (display_label.start) {
                     str_append(out_html, SV_FMT, SV_DATA(&display_label));
                 }
 
