@@ -210,8 +210,10 @@ BiblePassages bible_parse_ref(Arena *arena, const string *ref) {
         char *substr_start = nullptr;
 #ifndef X
 #define X(bible_enum) \
-        if (substr_start = strstr(#bible_enum, book_str.data), substr_start) \
-        { \
+        if ( \
+            substr_start = strstr(kBibleBookStrs[BIBLE_BOOK_##bible_enum], book_str.data), \
+            substr_start == kBibleBookStrs[BIBLE_BOOK_##bible_enum] \
+        ){ \
             book = BIBLE_BOOK_##bible_enum; \
         } \
         else
