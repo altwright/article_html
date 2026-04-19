@@ -1414,7 +1414,7 @@ void body_to_html(
 
                         str_append(out_html, "<p class=\"bible-block-verse-ref\">");
                         string ref_str = bible_passage_ref_to_str(arena, *passage);
-                        str_append(out_html, "%s", ref_str.data);
+                        str_append(out_html, "%s (LSB)", ref_str.data);
                         str_append(out_html, "</p>");
                     }
                 }
